@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>시안 ③ 이벤트/접수폼 관리</title>
+<link rel="stylesheet" href="mock.css">
+<style>
+  .head{background:#fff;border-bottom:1px solid var(--line);padding:12px 22px;display:flex;align-items:center;gap:12px}
+  .head h1{font-size:18px;margin:0}
+  .head .sp{flex:1}
+  .layout{display:grid;grid-template-columns:230px minmax(0,1fr) 360px;gap:0;min-height:calc(100vh - 100px)}
+  .lnav{background:#fff;border-right:1px solid var(--line);padding:14px 10px 90px;position:sticky;top:30px;height:calc(100vh - 30px);overflow:auto}
+  .lnav .g{font-size:11.5px;font-weight:800;color:var(--sub);letter-spacing:.04em;margin:14px 10px 6px}
+  .lnav button{display:flex;width:100%;align-items:center;gap:8px;text-align:left;border:0;background:none;padding:8px 10px;border-radius:9px;cursor:pointer;font-weight:600;color:var(--ink);font-size:13.5px}
+  .lnav button:hover{background:var(--sunk)}
+  .lnav button.on{background:var(--brand);color:#fff}
+  .lnav button .n{margin-left:auto;font-size:11px;opacity:.7}
+  .lnav button .d{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:auto}
+  .lnav .sub{padding-left:22px;font-weight:500}
+  .center{padding:20px 26px 110px}
+  .center h2{font-size:20px;margin:0 0 4px}
+  .center .lead{color:var(--sub);margin:0 0 16px}
+  .box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+  .box h3{margin:0 0 12px;font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .f{margin-bottom:14px}
+  .f:last-child{margin-bottom:0}
+  .f .lbl{justify-content:space-between}
+  .f .lbl .src{font-weight:500;color:var(--sub);font-size:11.5px}
+  .chg{outline:2px solid var(--accent);outline-offset:1px}
+  .tgl{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}
+  .tgl:first-of-type{border-top:0}
+  .sw{width:40px;height:23px;border-radius:999px;background:#d6cfc8;position:relative;cursor:pointer;border:0;flex:0 0 auto}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.15s}
+  .sw.on{background:var(--ok)} .sw.on::after{left:20px}
+  .linkrow{display:flex;gap:8px;flex-wrap:wrap}
+  .linkrow a{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-decoration:none;color:var(--ink);font-weight:700;background:#fff}
+  .linkrow a:hover{background:var(--sunk)}
+  .note{background:var(--bluebg);color:#1e4fb8;border-radius:12px;padding:10px 12px;font-size:12.5px;margin-bottom:12px}
+  .note.warn{background:var(--warnbg);color:#7a5210}
+  table.t{width:100%;border-collapse:collapse;font-size:13px}
+  table.t th{text-align:left;color:var(--sub);font-weight:700;font-size:12px;padding:8px;border-bottom:1px solid var(--line)}
+  table.t td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.t input,table.t select{height:34px;border:1.5px solid var(--line);border-radius:9px;padding:0 8px;width:100%;background:#fff}
+  .each{background:var(--sunk);border-radius:10px;padding:8px;margin-top:6px}
+  .each .r{display:grid;grid-template-columns:70px 1fr;gap:6px;align-items:center;margin-top:4px}
+  .imgl{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+  .imgl:first-of-type{border-top:0}
+  .imgl .th{width:64px;height:48px;border-radius:8px;overflow:hidden;background:var(--sunk2);display:flex;align-items:center;justify-content:center;color:var(--bad);font-weight:800}
+  .imgl code{font-size:12px;background:var(--sunk2);padding:1px 6px;border-radius:5px}
+  .srcchips{display:flex;gap:6px;flex-wrap:wrap}
+  .srcchips button{height:32px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:700;cursor:pointer}
+  .srcchips button.on{border-color:var(--bad);background:var(--badbg);color:var(--bad)}
+  /* 미리보기 */
+  .right{border-left:1px solid var(--line);background:#efebe7;padding:16px;position:sticky;top:30px;height:calc(100vh - 30px);overflow:auto}
+  .right .cap{font-size:12px;font-weight:800;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .ph{width:300px;margin:0 auto;background:var(--bg);border-radius:26px;box-shadow:0 0 0 7px #1f1b1a;overflow:hidden;min-height:540px}
+  .ph .tp{background:#fff;padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .ph .bd{padding:14px}
+  .ph h4{margin:0 0 4px;font-size:17px}
+  .ph p{margin:0 0 10px;font-size:12.5px;color:var(--sub)}
+  .ph .hlz{outline:2px dashed var(--accent);outline-offset:3px;border-radius:4px;transition:outline-color .2s}
+  .ph .bx{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;font-size:12.5px}
+  .ph .wb{background:var(--warnbg);color:#7a5210;border-radius:10px;padding:8px;font-size:12px}
+  .ph .sl{width:64px;height:64px;border:2px dashed #cfc7c0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--brand)}
+  .ph .ack{border:1.5px solid var(--line);border-radius:10px;padding:8px;font-size:12px;display:flex;gap:6px;background:#fff}
+  .ph .ack i{width:16px;height:16px;border:2px solid #cfc7c0;border-radius:4px;flex:0 0 auto}
+  .ph .ghost{height:10px;border-radius:5px;background:#e3ddd6;margin:6px 0}
+  .savebar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.06);z-index:40}
+  .savebar .in{padding:11px 22px;display:flex;gap:8px;align-items:center}
+  .savebar .sp{flex:1}
+  .diff{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+  .diff .h{background:var(--sunk);padding:8px 12px;font-weight:800;font-size:13px}
+  .diff .m{padding:8px 12px;background:#fdf1f1;color:#a33;font-size:13px;white-space:pre-wrap}
+  .diff .p{padding:8px 12px;background:#eef8f1;color:#17663a;font-size:13px;white-space:pre-wrap}
+  @media (max-width:1180px){ .layout{grid-template-columns:200px minmax(0,1fr)} .right{display:none} }
+</style></head><body>
+<div class="head"><span class="logochip"><img class="logo" src="logo.png" alt="아이닉"></span><h1>이벤트/접수폼 관리</h1>
+  <span class="chip line nodot">관리자 전용</span><span class="sp"></span><a class="btn sm" href="admin.html">← 업무화면으로</a></div>
+<div class="layout">
+  <nav class="lnav" id="lnav"></nav>
+  <section class="center" id="center"></section>
+  <aside class="right" id="right"></aside>
+</div>
+<div class="savebar"><div class="in"><span id="scnt" style="font-weight:800">변경 없음</span>
+  <button class="btn sm" id="viewChg" disabled>변경 내용 보기</button><button class="btn sm ghost" id="undoAll" disabled>모두 되돌리기</button>
+  <span class="sp"></span><span class="hint">저장하면 약 1분 뒤 고객 화면에 반영됩니다</span><button class="btn primary" id="save" disabled>저장</button></div></div>
+<div class="modal" id="mChg"><div class="box" style="padding:0"><div class="hd">저장 전 확인<span style="flex:1"></span><button class="btn sm ghost" onclick="$('#mChg').classList.remove('on')">✕</button></div>
+  <div class="bd" id="mChgBody"></div><div class="ft"><button class="btn" onclick="$('#mChg').classList.remove('on')">계속 수정</button><button class="btn primary" onclick="$('#mChg').classList.remove('on');NOSAVE()">이대로 저장</button></div></div></div>
+<script src="mock.js"></script>
+<script>
+mockbar("settings.html");
+/* 설정 샘플 — 키 이름은 실제 저장 키와 같게 표기했습니다(저장 구조는 바꾸지 않음) */
+const C0 = {
+  "survey.title":"포토리뷰 이벤트", "survey.desc":"리뷰를 남겨 주신 고객님께 사은품을 드려요",
+  "lookup.desc":"구매하신 내역을 확인한 뒤 참여하실 수 있어요.", "lookup.tip":"주문번호는 판매처 주문내역에서 확인할 수 있어요.",
+  "capture.title":"포토리뷰 캡처 이미지", "capture.desc":"본인이 작성한 리뷰 화면을 캡처해 등록해 주세요. 별점·후기 내용·첨부하신 사진이 함께 보여야 합니다.",
+  "capture.warn":"※ 제품 사진, 주문내역, 상품 상세페이지 등 리뷰 화면이 아닌 이미지는 지급 대상에서 제외됩니다.", "capture.req":true,
+  "buy.title":"구매 내역 확인", "buy.desc":"쿠팡 앱·홈페이지의 {{주문목록}} 화면을 캡처해 올려 주세요.\n{{구매일자}}와 {{제품명}}이 함께 보여야 합니다.", "buy.exampleName":"coupang_buy_guide.webp", "buy.req":true,
+  /* D-1: S/N 문구는 현재 운영 접수폼 문구를 기준값으로 맞춘 상태 */
+  "serial.desc":"시리얼번호를 정확히 기재해 주셔야 기프티콘 발송이 가능합니다.",
+  "serial.warn":"동일한 시리얼번호가 등록될 경우, 사은품/기프티콘은 최초 등록한 1명에게만 발송 됩니다.",
+  "serial.ack":"동일한 S/N은 최초 등록 1명에게만 사은품/기프티콘이 발송됨을 확인했습니다.", "serial.req":true, "serial.ackReq":true,
+  "info.title":"캡처 및 받으실 정보", "info.desc":"정확히 입력해 주세요. 오기재 시 발송이 지연되거나 누락될 수 있습니다.",
+  "info.req.name":true, "info.req.phone":true, "info.req.email":true, "info.req.addr":true,
+  "confirm.title":"신청 내용 확인", "confirm.warn":"입력하신 정보가 정확하지 않으면 발송이 지연되거나 누락될 수 있습니다.",
+  "kakaoMain":"https://pf.kakao.com/_xSample"
+};
+const C = JSON.parse(JSON.stringify(C0));
+const GIFTS0 = [
+  {ledger:"무선청소기 i90", codes:["i90"], gift:"네이버페이 10,000원", type:"coupon", fee:"착불", box:1},
+  {ledger:"에어프라이어", codes:["AO-16LS"], gift:"튀김용바스켓 16L,16LS", type:"gift", fee:"착불", box:2},
+  {ledger:"가습기 iH12", codes:["iH12"], gift:"전용 관리 set 가습기용", type:"gift", fee:"선불", box:1},
+  {ledger:"음식물처리기", codes:["iFD01-H","iFD01-F"], gift:"밀폐키친홀더 / 활성탄필터", type:"gift", fee:"착불", box:1,
+   giftEach:{"iFD01-H":"밀폐키친홀더 iFD01","iFD01-F":"활성탄필터 iFD01"}},
+  {ledger:"분유포트", codes:["iEK01"], gift:"배민 3,000원", type:"coupon", fee:"착불", box:1}];
+const GIFTS = JSON.parse(JSON.stringify(GIFTS0));
+const RULES = [{name:"스마트스토어 9월 특가", product:"에어프라이어", gift:"실리콘 매트", type:"gift", basis:"구매일", from:"2026-09-01", to:"2026-09-30", srcs:["스마트스토어"]}];
+const RATING0 = ["스마트스토어"]; let RATING = RATING0.slice();
+const MENU = [
+  {g:"접수 화면별", items:[["cover","표지"],["lookup","구매 확인"],["consent","동의·설문"],["photo","사진(리뷰 캡처)"],["buy","구매내역 (쿠팡)"],["sn","S/N 등록 (쿠팡)"],["info","받으실 정보"],["confirm","신청 확인·완료"]]},
+  {g:"상품·혜택", items:[["gifts","제품·사은품"],["promo","프로모션"]]},
+  {g:"규칙·연결", items:[["rules","심사 규칙"],["channel","상담 채널"],["images","고객 화면 이미지"],["notices","안내 문구 전체 ↗"]]},
+  {g:"운영 관리", items:[["users","사용자"],["badops","부적합 운영"],["reserve","예약발송 ↗"]]}];
+let cur = "sn", focusKey = "";
+const SCREEN_OF = {cover:"cover",lookup:"lookup",consent:"consent",photo:"photo",buy:"buy",sn:"sn",info:"info",confirm:"done"};
+const chgKeys = () => Object.keys(C).filter(k=>C[k]!==C0[k]);
+const giftChg = () => JSON.stringify(GIFTS)!==JSON.stringify(GIFTS0);
+const ruleChg = () => RATING.join()!==RATING0.join();
+const screenChanged = s => ({cover:["survey."],lookup:["lookup."],photo:["capture."],buy:["buy."],sn:["serial."],info:["info."],confirm:["confirm."],channel:["kakaoMain"]}[s]||[]).some(p=>chgKeys().some(k=>k.startsWith(p)))
+  || (s==="gifts"&&giftChg()) || (s==="rules"&&ruleChg());
+function nav(){
+  $("#lnav").innerHTML = MENU.map(g=>`<div class="g">${g.g}</div>`+g.items.map(([k,t])=>`<button class="${cur===k?"on":""} ${g.g==="접수 화면별"?"":""}" data-m="${k}">${t}${screenChanged(k)?'<span class="d"></span>':""}</button>`).join("")).join("");
+}
+const fld = (k,label,opt={}) => `<div class="f"><label class="lbl">${label}<span class="src">${k}</span></label>
+  ${opt.ta?`<textarea class="inp ${C[k]!==C0[k]?"chg":""}" data-k="${k}" rows="${opt.ta}">${esc(C[k])}</textarea>`:`<input class="inp ${C[k]!==C0[k]?"chg":""}" data-k="${k}" value="${esc(C[k])}">`}
+  ${opt.hint?`<div class="hint" style="margin-top:4px">${opt.hint}</div>`:""}</div>`;
+const tgl = (k,label,desc) => `<div class="tgl"><div><b>${label}</b><div class="hint">${desc||""}</div></div><button class="sw ${C[k]?"on":""}" data-t="${k}"></button></div>`;
+const noticeLink = sc => { const n=NOTICES.filter(x=>x.sc===sc).length; return `<a href="notices.html?screen=${sc}">💬 이 화면의 안내 문구 <b>${n}개</b> ›</a>`; };
+const VIEW = {
+  cover: () => `<h2>표지</h2><p class="lead">고객이 접수폼을 열면 처음 보는 화면입니다.</p>
+    <div class="box"><h3>문구</h3>${fld("survey.title","큰 제목")}${fld("survey.desc","설명",{ta:2})}</div>
+    <div class="box"><h3>이 화면과 연결된 것</h3><div class="linkrow"><a data-m="images">🖼 로고·제품 이미지 ›</a></div></div>`,
+  lookup: () => `<h2>구매 확인 <span class="chip blue nodot">포토리뷰만</span></h2><p class="lead">주문번호·송장번호·성함+연락처로 구매 내역을 조회하는 화면입니다.</p>
+    <div class="box"><h3>문구</h3>${fld("lookup.desc","화면 설명",{ta:2})}${fld("lookup.tip","주의 문구",{ta:2})}</div>
+    <div class="box"><h3>이 화면과 연결된 것</h3><div class="linkrow">${noticeLink("lookup")}<a data-m="images">🖼 판매처별 주문번호 안내 이미지 ›</a></div></div>`,
+  consent: () => `<h2>동의·설문</h2><p class="lead">동의 항목과 설문은 기존 편집 화면을 그대로 이곳으로 옮깁니다.</p>
+    <div class="box"><h3>동의 항목 <span class="hint">(항목 이름 · 필수 여부 · 용도 · 전문)</span></h3>
+    <table class="t"><tr><th>항목</th><th style="width:90px">필수</th><th style="width:120px">용도</th></tr>
+      ${[["개인정보 수집 및 이용 동의","필수","개인정보"],["개인정보 처리 위탁 안내","필수","위탁"],["광고성 정보 수신 동의","선택","광고성 수신"],["사진·리뷰 마케팅 활용 동의","선택","사진 활용"]].map(r=>`<tr><td><input value="${r[0]}"></td><td><select><option>${r[1]}</option></select></td><td><select disabled><option>${r[2]}</option></select></td></tr>`).join("")}</table>
+    <p class="hint" style="margin:8px 0 0">용도(개인정보/위탁/광고/사진)는 동의 처리 의미와 연결되어 있어 시안에서는 잠가 두었습니다.</p></div>
+    <div class="box"><h3>설문</h3><div class="linkrow"><a href="#" onclick="toast('시안: 기존 공통 설문·제품별 설문 편집 화면');return false">📝 공통 설문 3문항 ›</a><a href="#" onclick="toast('시안: 기존 제품별 설문 편집 화면');return false">📝 제품별 설문 ›</a>${noticeLink("consent")}</div></div>`,
+  photo: () => `<h2>사진 (리뷰 캡처) <span class="chip blue nodot">포토리뷰</span></h2><p class="lead">「캡처 및 받으실 정보」 화면의 사진 영역입니다.</p>
+    <div class="box"><h3>문구</h3>${fld("capture.title","제목")}${fld("capture.desc","설명",{ta:3})}${fld("capture.warn","주의 문구",{ta:2})}</div>
+    <div class="box"><h3>필수 여부</h3>${tgl("capture.req","리뷰 캡처 필수","끄면 사진 없이도 접수됩니다 (서버도 같은 기준으로 확인)")}</div>
+    <div class="box"><h3>이 화면과 연결된 것</h3><div class="linkrow">${noticeLink("photo")}<a data-m="images">🖼 리뷰 캡처 예시 이미지 ›</a></div></div>`,
+  buy: () => `<h2>구매내역 <span class="chip blue nodot">쿠팡 정품등록</span></h2><p class="lead">쿠팡 주문목록 캡처를 올리는 화면입니다.</p>
+    <div class="box"><h3>문구</h3>${fld("buy.title","제목")}${fld("buy.desc","설명",{ta:3,hint:"{{굵게}} · [[빨간 굵게]] 사용 가능"})}
+      ${fld("buy.exampleName","예시 이미지 파일 이름",{hint:"GitHub <code>examples/</code> 폴더의 파일 이름 · 없으면 예시 칸만 숨겨집니다"})}</div>
+    <div class="box"><h3>필수 여부</h3>${tgl("buy.req","구매내역 캡처 필수","")}</div>
+    <div class="box"><h3>이 화면과 연결된 것</h3><div class="linkrow">${noticeLink("buy")}</div></div>`,
+  sn: () => `<h2>S/N 등록 <span class="chip blue nodot">쿠팡 정품등록</span></h2><p class="lead">S/N 라벨 사진과 시리얼번호를 받는 화면입니다.</p>
+    <div class="note">ⓘ 아래 문구는 <b>현재 고객에게 보이는 접수폼 문구</b>를 기준값으로 맞춰 둔 상태입니다(D-1). 처음 연결할 때 고객 화면은 바뀌지 않고, 이후 여기서 고치면 접수폼에 반영됩니다.</div>
+    <div class="box"><h3>문구</h3>${fld("serial.desc","안내 문구",{ta:2})}${fld("serial.warn","주의 문구",{ta:2})}
+      ${fld("serial.ack","확인 체크 문구",{ta:2,hint:"고객이 체크하는 문장입니다. 중복 규칙(최초 1명) 안내가 빠지지 않게 주의하세요."})}</div>
+    <div class="box"><h3>필수 여부</h3>${tgl("serial.req","S/N 입력 필수","끄면 S/N 중복 확인이 약해집니다")}${tgl("serial.ackReq","확인 체크 필수","")}${tgl("capture.req","S/N 라벨 사진 필수","리뷰 캡처와 같은 스위치입니다")}</div>
+    <div class="box"><h3>이 화면과 연결된 것</h3><div class="linkrow">${noticeLink("sn")}<a data-m="images">🖼 제품별 S/N 라벨 위치 사진 ›</a></div></div>`,
+  info: () => `<h2>받으실 정보</h2><p class="lead">성함·연락처·이메일·주소를 받는 화면입니다.</p>
+    <div class="box"><h3>문구</h3>${fld("info.title","제목")}${fld("info.desc","설명",{ta:2})}</div>
+    <div class="box"><h3>필수 항목</h3>${tgl("info.req.name","성함","")}${tgl("info.req.phone","연락처","")}${tgl("info.req.email","이메일","")}${tgl("info.req.addr","주소","사은품(배송)일 때만 받습니다")}
+      <p class="hint" style="margin:8px 0 0">칸 이름 변경·칸 추가는 2차 개선 범위입니다(저장 데이터 모양이 바뀌지 않도록 별도 설계).</p></div>
+    <div class="box"><h3>이 화면과 연결된 것</h3><div class="linkrow">${noticeLink("info")}</div></div>`,
+  confirm: () => `<h2>신청 확인·완료</h2><p class="lead">마지막 확인 화면과 접수 완료 창입니다.</p>
+    <div class="box"><h3>신청 확인 화면</h3>${fld("confirm.title","제목")}${fld("confirm.warn","주의 문구",{ta:2})}</div>
+    <div class="box"><h3>이 화면과 연결된 것</h3><div class="linkrow">${noticeLink("done")}${noticeLink("submit").replace("이 화면의","신청 버튼 뒤")}</div></div>`,
+  gifts: () => `<h2>제품·사은품</h2><p class="lead">제품마다 사은품 이름·종류·배송비·합배송을 정합니다. 사은품 이름은 출고 품목명과 사진 파일 이름으로도 쓰입니다.</p>
+    <div class="box"><table class="t"><tr><th>제품</th><th>사은품 이름</th><th style="width:96px">종류</th><th style="width:86px">배송비</th><th style="width:70px">합배송</th></tr>
+    ${GIFTS.map((p,i)=>`<tr><td><b>${esc(p.ledger)}</b><div class="hint">${p.codes.join(", ")}</div></td>
+      <td>${p.giftEach?`<input value="${esc(p.gift)}" data-gi="${i}" data-f="gift"><div class="each"><b style="font-size:12px">코드별 사은품 이름 (고객 화면·출고에 쓰이는 값)</b>
+        ${p.codes.map(c=>`<div class="r"><span class="hint">${c}</span><input value="${esc(p.giftEach[c])}" data-gi="${i}" data-each="${c}"></div>`).join("")}
+        <div class="hint" style="margin-top:4px">위 대표 이름은 목록 표시용입니다. 예전에는 이 두 칸이 없어 고쳐도 반영되지 않았습니다.</div></div>`
+        :`<input value="${esc(p.gift)}" data-gi="${i}" data-f="gift">`}</td>
+      <td><select data-gi="${i}" data-f="type"><option value="gift" ${p.type==="gift"?"selected":""}>사은품</option><option value="coupon" ${p.type==="coupon"?"selected":""}>상품권</option></select></td>
+      <td>${p.type==="coupon"?'<span class="hint">-</span>':`<select data-gi="${i}" data-f="fee"><option ${p.fee==="착불"?"selected":""}>착불</option><option ${p.fee==="선불"?"selected":""}>선불</option></select>`}</td>
+      <td>${p.type==="coupon"?'<span class="hint">-</span>':`<input type="number" min="1" value="${p.box}" data-gi="${i}" data-f="box">`}</td></tr>`).join("")}</table></div>`,
+  promo: () => `<h2>프로모션</h2><p class="lead">판매처·기간에 따라 사은품을 바꾸는 규칙입니다(기존 기능 그대로).</p>
+    <div class="box"><table class="t"><tr><th>이름</th><th>제품</th><th>프로모션 사은품</th><th>기간</th><th>판매처</th></tr>
+    ${RULES.map(r=>`<tr><td><input value="${r.name}"></td><td>${r.product}</td><td><input value="${r.gift}"></td><td class="hint">${r.basis} 기준<br>${r.from} ~ ${r.to}</td><td>${r.srcs.map(s=>`<span class="chip line nodot">${s}</span>`).join(" ")}</td></tr>`).join("")}</table>
+    <button class="btn sm" style="margin-top:10px" onclick="toast('시안: 규칙 추가')">＋ 규칙 추가</button></div>`,
+  rules: () => `<h2>심사 규칙</h2><p class="lead">AI 심사가 직접 읽는 값입니다. 바꾸면 심사 결과가 달라집니다.</p>
+    <div class="note warn">⚠ 별점을 읽지 못했을 때, 아래 판매처는 <b>부적합</b>, 나머지는 <b>통과</b>로 처리합니다. (예전에는 안내 문구 탭 안에 있었습니다)</div>
+    <div class="box"><h3>별점 필수 판매처</h3><div class="srcchips">${["스마트스토어","쿠팡","11번가","오늘의집","자사몰","G마켓","SSG","하이마트"].map(s=>`<button class="${RATING.includes(s)?"on":""}" data-rs="${s}">${RATING.includes(s)?"✓ ":""}${s}</button>`).join("")}</div></div>`,
+  channel: () => `<h2>상담 채널</h2><p class="lead">안내 문구의 「💬 상담 버튼」이 여는 주소입니다.</p>
+    <div class="box">${fld("kakaoMain","카카오톡 채널 주소",{hint:C.kakaoMain&&!/^https:\/\//.test(C.kakaoMain)?'<span style="color:var(--bad);font-weight:700">⚠ https:// 로 시작해야 합니다. 이대로면 상담 버튼이 보이지 않습니다.</span>':"https:// 로 시작하는 주소만 쓸 수 있습니다"})}
+      <button class="btn sm" onclick="toast('시안: 새 탭으로 채널 열기')">주소 열어 보기 ↗</button></div>`,
+  images: () => { const im=[["사은품","gifts/","디바이더 7L.png",true],["사은품","gifts/","활성탄필터 iFD01.webp",false],["사은품","gifts/","밀폐키친홀더 iFD01.png",true],
+      ["S/N 라벨 위치","sn/","i90.webp",true],["S/N 라벨 위치","sn/","AO-16LS.webp",true],["주문번호 안내","guide/","naver.webp",true],["쿠팡 구매내역 예시","examples/","coupang_buy_guide.webp",true]];
+    return `<h2>고객 화면 이미지</h2><p class="lead">고객 화면의 이미지는 GitHub 저장소 폴더의 파일입니다. 이 화면에서 무엇이 있고 무엇이 빠졌는지 확인하고, 정확한 파일 이름으로 올리면 됩니다.</p>
+    <div class="note">올리는 방법: GitHub 저장소 → 해당 폴더 → <b>Add file › Upload files</b> → 아래 파일 이름 그대로 → Commit. 1~2분 뒤 반영되며, 휴대폰에서는 새로고침이 필요할 수 있습니다.</div>
+    <div class="box"><h3>폴더 파일 (관리자가 교체 가능)</h3>${im.map(([g,d,f,ok])=>`<div class="imgl"><div class="th">${ok?fakeShot(f.split(".")[0]):"✗"}</div>
+      <div><b>${g}</b> ${ok?'<span class="chip ok">있음</span>':'<span class="chip bad">없음 · 고객 화면에 「이미지 준비 중」</span>'}<div style="margin-top:4px"><code>${d}${f}</code></div>
+      <div class="hint">권장 960×720 · 200KB 이하 · webp → png → jpg 순서로 찾습니다</div></div>
+      <button class="btn sm" onclick="navigator.clipboard&&navigator.clipboard.writeText('${f}');toast('파일 이름을 복사했습니다')">파일 이름 복사</button></div>`).join("")}</div>
+    <div class="box"><h3>코드 내장 이미지 <span class="chip line nodot">2차 개선에서 폴더 파일로 전환</span></h3><p class="hint" style="margin:0">로고 · 제품 사진 17개 · 리뷰 캡처 예시 — 지금은 접수폼 파일 안에 들어 있어 개발자가 바꿔야 합니다. 아이닉 로고는 계속 유지됩니다.</p></div>`; },
+  users: () => `<h2>사용자</h2><p class="lead">계정 추가·역할·중지 — 기존 화면 그대로(시안 생략).</p>`,
+  badops: () => `<h2>부적합 운영</h2><p class="lead">자동 배분 규칙·휴가자 — 기존 화면 그대로(시안 생략).</p>`
+};
+function preview(){
+  const s=cur; const v = k => `<span class="${focusKey===k?"hlz":""}">${rich(C[k]||"")}</span>`;
+  const top = `<div class="tp"><img src="logo.png" style="height:18px"><span class="hint">💬 문의</span></div>`;
+  let b = "";
+  if(s==="cover") b = `<div class="bx" style="text-align:center;padding:18px"><img src="logo.png" style="height:24px"><h4 style="margin-top:8px">${v("survey.title")}</h4><p>${v("survey.desc")}</p></div><div class="bx">📷 포토리뷰 참여 ›</div><div class="bx">✔︎ 쿠팡 정품등록 ›</div>`;
+  else if(s==="lookup") b = `<h4>구매 내역 확인</h4><p>${v("lookup.desc")}</p><div class="bx"><div class="ghost"></div><div class="ghost" style="width:60%"></div></div><div class="wb">${v("lookup.tip")}</div>`;
+  else if(s==="photo") b = `<h4>${esc(C["info.title"])}</h4><div class="bx"><b>${v("capture.title")}</b> <span style="color:var(--bad)">${C["capture.req"]?"●":""}</span><div style="display:flex;gap:6px;margin:8px 0"><div class="sl">＋</div><div class="sl"></div><div class="sl"></div></div><p>${v("capture.desc")}</p><div class="wb">${v("capture.warn")}</div></div>`;
+  else if(s==="buy") b = `<h4>${v("buy.title")}</h4><p>${v("buy.desc")}</p><div class="bx"><div class="sl">＋</div><div class="hint" style="margin-top:6px">예시: ${esc(C["buy.exampleName"])}</div></div>`;
+  else if(s==="sn") b = `<h4>시리얼번호(S/N) 등록</h4><p>${v("serial.desc")}<br>${v("serial.warn")}</p><div class="bx"><b>S/N 라벨 사진</b><div class="sl" style="margin-top:6px">＋</div></div><div class="bx"><b>S/N 번호</b><div class="ghost"></div></div><div class="ack"><i></i><span>${v("serial.ack")}</span></div>`;
+  else if(s==="info") b = `<h4>${v("info.title")}</h4><p>${v("info.desc")}</p>${["성함","연락처","이메일","주소"].map((t,i)=>`<div class="bx"><b>${t}</b> ${C["info.req."+["name","phone","email","addr"][i]]?'<span style="color:var(--bad)">●</span>':'<span class="hint">(선택)</span>'}<div class="ghost"></div></div>`).join("")}`;
+  else if(s==="confirm") b = `<h4>${v("confirm.title")}</h4><div class="bx"><div class="ghost"></div><div class="ghost" style="width:70%"></div></div><div class="wb">${v("confirm.warn")}</div>`;
+  else if(s==="channel") b = `<div class="bx" style="text-align:center">안내 문구 아래<br><span style="display:inline-block;background:#FEE500;padding:7px 10px;border-radius:8px;font-weight:800;margin-top:6px">💬 아이닉 카카오톡 채널로 문의하기</span><div class="hint" style="margin-top:6px;word-break:break-all">${esc(C.kakaoMain)}</div></div>`;
+  else b = `<div class="hint" style="text-align:center;padding:40px 10px">이 메뉴는 고객 화면 한 곳에 대응하지 않아<br>미리보기가 없습니다.</div>`;
+  $("#right").innerHTML = `<div class="cap">📱 고객 화면 미리보기 <span class="hint" style="font-weight:600">(입력하는 대로 바뀝니다)</span></div><div class="ph">${top}<div class="bd">${b}</div></div>
+    <p class="hint" style="text-align:center;margin-top:10px">점선 = 지금 고치는 칸이 나오는 자리</p>`;
+}
+function savebar(){ const n=chgKeys().length+(giftChg()?1:0)+(ruleChg()?1:0);
+  $("#scnt").textContent = n?`변경 ${n}건 · 아직 저장 안 됨`:"변경 없음"; ["viewChg","undoAll","save"].forEach(id=>$("#"+id).disabled=!n); }
+function render(){ nav(); $("#center").innerHTML = VIEW[cur](); preview(); savebar(); }
+document.addEventListener("click",e=>{
+  const m=e.target.closest("[data-m]"); if(m){ e.preventDefault(); const k=m.dataset.m;
+    if(k==="notices"){ location.href="notices.html"; return; } if(k==="reserve"){ location.href="reserve.html"; return; }
+    cur=k; focusKey=""; render(); window.scrollTo(0,0); return; }
+  const t=e.target.closest("[data-t]"); if(t){ C[t.dataset.t]=!C[t.dataset.t]; render(); return; }
+  const r=e.target.closest("[data-rs]"); if(r){ const s=r.dataset.rs; RATING = RATING.includes(s)?RATING.filter(x=>x!==s):RATING.concat(s); render(); }
+});
+document.addEventListener("focusin",e=>{ const k=e.target.dataset&&e.target.dataset.k; if(k){ focusKey=k; preview(); } });
+document.addEventListener("input",e=>{
+  const d=e.target.dataset||{};
+  if(d.k){ C[d.k]=e.target.value; e.target.classList.toggle("chg",C[d.k]!==C0[d.k]); preview(); nav(); savebar();
+    if(d.k==="kakaoMain"){ const h=e.target.parentNode.querySelector(".hint"); h.innerHTML = C.kakaoMain&&!/^https:\/\//.test(C.kakaoMain)?'<span style="color:var(--bad);font-weight:700">⚠ https:// 로 시작해야 합니다. 이대로면 상담 버튼이 보이지 않습니다.</span>':"https:// 로 시작하는 주소만 쓸 수 있습니다"; } }
+  if(d.gi!=null){ const p=GIFTS[+d.gi]; if(d.each) p.giftEach[d.each]=e.target.value; else p[d.f]=d.f==="box"?+e.target.value:e.target.value; nav(); savebar(); }
+});
+document.addEventListener("change",e=>{ const d=e.target.dataset||{}; if(d.gi!=null&&d.f==="type"){ GIFTS[+d.gi].type=e.target.value; render(); } });
+const showChanges=()=>{
+  const rows = chgKeys().map(k=>`<div class="diff"><div class="h">${k}</div><div class="m">− ${esc(C0[k])}</div><div class="p">+ ${esc(C[k])}</div></div>`);
+  if(giftChg()) rows.push(`<div class="diff"><div class="h">제품·사은품</div><div class="p">사은품 표의 값이 바뀌었습니다 (출고 품목명에 영향)</div></div>`);
+  if(ruleChg()) rows.push(`<div class="diff"><div class="h">심사 규칙 · 별점 필수 판매처</div><div class="m">− ${RATING0.join(", ")}</div><div class="p">+ ${RATING.join(", ")||"(없음)"}</div></div>`);
+  $("#mChgBody").innerHTML = rows.join(""); $("#mChg").classList.add("on"); };
+$("#viewChg").onclick=showChanges; $("#save").onclick=showChanges;
+$("#undoAll").onclick=()=>{ Object.assign(C, JSON.parse(JSON.stringify(C0))); GIFTS.splice(0,GIFTS.length,...JSON.parse(JSON.stringify(GIFTS0))); RATING=RATING0.slice(); render(); };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("#mChg").classList.remove("on"); });
+render();
+</script></body></html>

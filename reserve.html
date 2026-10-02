@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>시안 ⑤ 예약발송 관리</title>
+<link rel="stylesheet" href="mock.css">
+<style>
+  .head{background:#fff;border-bottom:1px solid var(--line);padding:12px 22px;display:flex;align-items:center;gap:12px}
+  .head h1{font-size:18px;margin:0}.head .sp{flex:1}
+  .main{max-width:1060px;margin:0 auto;padding:18px 20px 40px}
+  .purpose{background:var(--accentbg);border:1px solid #f0dcb8;border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start;font-size:13px}
+  .purpose b{color:#7a5210}
+  .flow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .flow span{background:#fff;border:1px solid #f0dcb8;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:#7a5210}
+  .setup{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:14px}
+  .setup h3{margin:0 0 10px;font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .setup h3 .sp{flex:1}
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+  .pi{border:1.5px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;background:#fff}
+  .pi.on{border-color:var(--accent);background:var(--accentbg)}
+  .pi label{display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer}
+  .pi input[type=text]{height:32px;border:1.5px solid var(--line);border-radius:8px;padding:0 8px;background:#fff}
+  .pi input[disabled]{background:var(--sunk2);color:var(--sub)}
+  .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px;position:sticky;top:30px;z-index:10}
+  .bar .search{position:relative;flex:1 1 220px}
+  .bar .search input{width:100%;height:36px;border:1.5px solid var(--line);border-radius:10px;padding:0 12px 0 32px;background:var(--sunk)}
+  .bar .search::before{content:"🔎";position:absolute;left:10px;top:8px;font-size:13px}
+  .info{display:flex;align-items:center;gap:8px;color:var(--sub);font-size:12.5px;margin:0 2px 10px;flex-wrap:wrap}
+  .info .sp{flex:1}
+  .grp{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden}
+  .gh{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--sunk);border-bottom:1px solid var(--line)}
+  .gh b{font-size:15px}
+  .gh .cnt{font-weight:800;color:var(--accent)}
+  .gh .sp{flex:1}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--sub);font-weight:700;font-size:12px;padding:8px 16px;border-bottom:1px solid var(--line);background:#fff}
+  td{padding:10px 16px;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:0}
+  tr:hover td{background:var(--sunk)}
+  .pager{display:flex;justify-content:center;align-items:center;gap:4px;margin-top:14px}
+  .pager button{min-width:36px;height:34px;border:1px solid var(--line);background:#fff;border-radius:9px;font-weight:700;cursor:pointer;padding:0 10px}
+  .pager button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .pager button[disabled]{opacity:.4;cursor:not-allowed}
+  .empty{background:#fff;border:1px dashed var(--line);border-radius:16px;padding:40px;text-align:center;color:var(--sub)}
+</style></head><body>
+<div class="head"><span class="logochip"><img class="logo" src="logo.png" alt="아이닉"></span><h1>예약발송 관리</h1>
+  <span class="chip line nodot">관리자 · QA · 발주·회계</span><span class="sp"></span><a class="btn sm" href="admin.html">← 업무화면으로</a></div>
+<div class="main">
+  <div class="purpose"><span style="font-size:20px">📮</span><div><b>이 화면은 출고 화면이 아닙니다.</b> 예약 제품 고객에게 입고·발송 안내 문자를 보내기 위한 고객 목록입니다.
+    <div class="flow"><span>① 제품 예약 지정</span><span>② 적합 고객이 이 목록으로</span><span>③ 문자 안내</span><span>④ 입고되면 지정 해제</span><span>⑤ 사은품 탭에서 일괄출고</span></div></div></div>
+
+  <div class="setup"><h3>예약발송 제품 지정 <span class="hint" style="font-weight:600">체크한 제품의 적합 고객은 사은품 탭에서 빠지고 아래 목록으로 모입니다</span><span class="sp"></span>
+    <button class="btn sm primary" onclick="NOSAVE()">저장</button></h3>
+    <div class="pgrid" id="pgrid"></div></div>
+
+  <div class="bar"><div class="search"><input id="q" placeholder="고객 이름·연락처로 찾기"></div>
+    <select id="pf" class="btn sm" style="height:36px"></select>
+    <button class="btn sm primary" id="dl">⬇ 문자 발송용 목록 내려받기</button></div>
+  <div class="info"><span id="tot"></span><span class="sp"></span><span id="revnote"></span></div>
+  <div id="groups"></div>
+  <div class="pager" id="pager"></div>
+</div>
+<script src="mock.js"></script>
+<script>
+mockbar("reserve.html");
+const ALL = makeEntries(140);
+const RES = JSON.parse(JSON.stringify(RESERVE_DEFAULT));
+const giftProducts = PRODUCTS.filter(p=>p.rw==="gift");
+const V = { q:"", pf:"", page:1 };
+const PER = 10;
+/* 목록 대상 = 예약 지정 제품 · 사은품 · (적합 또는 출고 승인) · 미출고. 확인필요/심사중은 넣지 않음 */
+const inList = e => (e.product in RES) && e.rw==="gift" && (e.status==="eligible"||e.approved) && !e.shipped;
+const pending = e => (e.product in RES) && e.rw==="gift" && (e.status==="review"||e.status==="pending") && !e.approved;
+function renderSetup(){
+  $("#pgrid").innerHTML = giftProducts.map(p=>{ const on = p.code in RES; return `<div class="pi ${on?"on":""}">
+    <label><input type="checkbox" data-p="${p.code}" ${on?"checked":""}> ${esc(p.name)}</label>
+    <input type="text" data-at="${p.code}" value="${esc(RES[p.code]||"")}" placeholder="입고 예정 (예: 10월 중순)" ${on?"":"disabled"}>
+    ${on&&!RES[p.code]?'<span class="hint">시점을 비우면 고객 안내에 「추후」로 나갑니다</span>':""}</div>`; }).join("");
+  const opts = Object.keys(RES); $("#pf").innerHTML = `<option value="">예약 제품 전체</option>`+opts.map(c=>`<option value="${c}" ${V.pf===c?"selected":""}>${esc(prodOf(c).name)}</option>`).join("");
+}
+function data(){
+  const q=V.q.trim().toLowerCase(), d=q.replace(/\D/g,"");
+  const order = Object.keys(RES);
+  return ALL.filter(inList).filter(e=>!V.pf||e.product===V.pf)
+    .filter(e=>!q||e.name.toLowerCase().includes(q)||(d.length>=4&&e.phone.replace(/\D/g,"").includes(d)))
+    .sort((a,b)=> order.indexOf(a.product)-order.indexOf(b.product) || a.date-b.date);
+}
+function renderList(){
+  const L=data(), pages=Math.max(1,Math.ceil(L.length/PER)); if(V.page>pages) V.page=pages;
+  const vis=L.slice((V.page-1)*PER, V.page*PER);
+  const totBy={}; L.forEach(e=>totBy[e.product]=(totBy[e.product]||0)+1);
+  $("#tot").innerHTML = `예약 고객 <b style="color:var(--ink)">${L.length}명</b> · ${Object.keys(totBy).length}개 제품 · 한 페이지 ${PER}명`;
+  const pend = ALL.filter(pending).filter(e=>!V.pf||e.product===V.pf).length;
+  $("#revnote").innerHTML = pend ? `<span class="chip warn">확인필요 ${pend}명</span> 은 목록에 넣지 않았습니다 · 재심사로 적합(또는 출고 승인)이 되면 들어옵니다 <a href="admin.html">확인필요 업무로 ›</a>` : "";
+  if(!vis.length){ $("#groups").innerHTML=`<div class="empty">${Object.keys(RES).length?"조건에 맞는 예약 고객이 없습니다.":"예약발송으로 지정한 제품이 없습니다."}</div>`; $("#pager").innerHTML=""; return; }
+  const groups=[]; vis.forEach(e=>{ const g=groups[groups.length-1]; if(g&&g.p===e.product) g.rows.push(e); else groups.push({p:e.product,rows:[e]}); });
+  const firstIdx = p => L.findIndex(e=>e.product===p);
+  $("#groups").innerHTML = groups.map(g=>{ const cont = firstIdx(g.p) < (V.page-1)*PER;
+    return `<div class="grp"><div class="gh"><b>${esc(prodOf(g.p).name)}</b><span class="cnt">고객 ${totBy[g.p]}명</span>${cont?'<span class="hint">(앞 페이지에서 이어짐)</span>':""}
+      <span class="chip accent nodot">입고 ${esc(RES[g.p]||"추후")}</span><span class="sp"></span><button class="btn sm" data-dlp="${g.p}">이 제품만 내려받기</button></div>
+      <table><tr><th style="width:44px">No</th><th>고객명</th><th>연락처</th><th>접수일</th><th>사은품</th><th>상태</th></tr>
+      ${g.rows.map(e=>`<tr><td class="hint">${L.indexOf(e)+1}</td><td><b>${esc(e.name)}</b></td><td>${esc(e.phone)}</td><td>${fmtDate(e.date)}</td><td>${esc(e.gift)}</td>
+        <td>${e.approved?'<span class="chip accent">출고 승인</span>':'<span class="chip ok">적합</span>'} <span class="chip line nodot">입고 대기</span></td></tr>`).join("")}</table></div>`; }).join("");
+  const btn=(lbl,pg,dis,on)=>`<button ${dis?"disabled":""} class="${on?"on":""}" data-pg="${pg}">${lbl}</button>`;
+  let h = btn("‹ 이전",V.page-1,V.page===1);
+  for(let i=1;i<=pages;i++) h+=btn(i,i,false,i===V.page);
+  h += btn("다음 ›",V.page+1,V.page===pages);
+  $("#pager").innerHTML = pages>1 ? h : "";
+}
+function download(rows, name){
+  const head=["제품","고객명","연락처","접수일","입고 예정"];
+  const csv="﻿"+[head].concat(rows.map(e=>[prodOf(e.product).name,e.name,e.phone,fmtDate(e.date),RES[e.product]||"추후"]))
+    .map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=name; a.click();
+  toast(`샘플 ${rows.length}명 목록을 내려받았습니다 (실제로는 접근 기록이 남습니다)`);
+}
+document.addEventListener("click",e=>{
+  const pg=e.target.closest("[data-pg]"); if(pg&&!pg.disabled){ V.page=+pg.dataset.pg; renderList(); window.scrollTo({top:0,behavior:"smooth"}); }
+  const dp=e.target.closest("[data-dlp]"); if(dp){ const p=dp.dataset.dlp; download(data().filter(x=>x.product===p), `예약발송_${p}_시안.csv`); }
+});
+document.addEventListener("change",e=>{
+  const p=e.target.dataset&&e.target.dataset.p; if(p){ if(e.target.checked) RES[p]=""; else { delete RES[p]; toast("지정 해제 시 이 제품 고객은 사은품 탭 적합 목록으로 돌아갑니다(저장 후)"); } V.page=1; renderSetup(); renderList(); }
+});
+document.addEventListener("input",e=>{ const at=e.target.dataset&&e.target.dataset.at; if(at){ RES[at]=e.target.value; renderList(); } });
+$("#q").oninput=e=>{ V.q=e.target.value; V.page=1; renderList(); };
+$("#pf").onchange=e=>{ V.pf=e.target.value; V.page=1; renderList(); };
+$("#dl").onclick=()=>download(data(), "예약발송_문자안내_시안.csv");
+renderSetup(); renderList();
+</script></body></html>

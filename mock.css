@@ -1,0 +1,85 @@
+/* 아이닉 포토리뷰 UI 시안 — 공통 스타일 (시안 전용, 운영 파일과 무관) */
+:root{
+  --brand:#3f3939; --ink:#2b2725; --sub:#8a827c; --line:#ece8e4;
+  --bg:#f6f4f2; --card:#fff; --sunk:#faf8f6; --sunk2:#f2efec;
+  --ok:#12a150; --okbg:#e9f4ee; --bad:#e5484d; --badbg:#fbedee;
+  --warn:#b8791a; --warnbg:#fdf3e4; --blue:#2f6df6; --bluebg:#eaf0fd;
+  --accent:#c98a2e; --accentbg:#fbf3e6;
+  --r-sm:8px; --r-md:12px; --r-lg:18px; --r-pill:999px;
+  --sh-1:0 1px 2px rgba(43,39,37,.06); --sh-2:0 8px 28px rgba(43,39,37,.14);
+  --focus:0 0 0 3px rgba(47,109,246,.28);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--blue)}
+.logo{height:26px;display:block}
+.logochip{background:#fff;border-radius:8px;padding:4px 8px;display:inline-flex}
+
+/* 시안 띠 */
+.mockbar{position:sticky;top:0;z-index:50;background:#2b2725;color:#fff;font-size:12.5px;padding:7px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.mockbar b{color:#ffd58a}
+.mockbar a{color:#fff;opacity:.85;text-decoration:none;padding:2px 8px;border-radius:6px}
+.mockbar a:hover,.mockbar a.on{background:rgba(255,255,255,.15);opacity:1}
+.mockbar .sp{flex:1}
+
+/* 버튼 */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--r-md);
+  border:1px solid var(--line);background:#fff;font-weight:700;cursor:pointer;transition:transform .05s,background .15s}
+.btn:hover{background:var(--sunk)}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible,.chip:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;box-shadow:var(--focus)}
+.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn.primary:hover{background:#2f2a2a}
+.btn.danger{background:var(--badbg);color:var(--bad);border-color:transparent}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--sub)}
+.btn.ghost:hover{background:var(--sunk2);color:var(--ink)}
+.btn.sm{height:30px;padding:0 10px;font-size:12.5px;border-radius:var(--r-sm)}
+.btn.lg{height:52px;font-size:16px;border-radius:14px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* 칩 */
+.chip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:var(--r-pill);font-size:12px;font-weight:700;
+  background:var(--sunk2);color:var(--sub);white-space:nowrap;border:0}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+.chip.nodot::before{display:none}
+.chip.ok{background:var(--okbg);color:var(--ok)}
+.chip.bad{background:var(--badbg);color:var(--bad)}
+.chip.warn{background:var(--warnbg);color:var(--warn)}
+.chip.blue{background:var(--bluebg);color:var(--blue)}
+.chip.accent{background:var(--accentbg);color:var(--accent)}
+.chip.line{background:#fff;border:1px solid var(--line)}
+.fchip{height:30px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:700;color:var(--sub);cursor:pointer}
+.fchip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+
+/* 카드·입력 */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-1)}
+.inp{width:100%;height:44px;border:1.5px solid var(--line);border-radius:var(--r-md);padding:0 12px;background:#fff;font-size:15px}
+textarea.inp{height:auto;min-height:84px;padding:10px 12px;line-height:1.55;resize:vertical}
+.inp:focus{border-color:var(--brand);outline:none;box-shadow:var(--focus)}
+.inp.err{border-color:var(--bad)}
+.lbl{display:flex;align-items:center;gap:6px;font-weight:700;font-size:13.5px;margin:0 0 6px}
+.req{width:6px;height:6px;border-radius:50%;background:var(--bad);display:inline-block}
+.opt{font-size:11.5px;color:var(--sub);font-weight:600}
+.errtxt{color:var(--bad);font-size:12.5px;margin-top:6px;display:none}
+.errtxt.on{display:block}
+.hint{font-size:12.5px;color:var(--sub)}
+.sec-t{font-size:12px;font-weight:800;color:var(--sub);letter-spacing:.04em;text-transform:uppercase;margin:0 0 8px}
+
+/* 토스트·모달 */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);opacity:0;background:#2b2725;color:#fff;
+  padding:11px 18px;border-radius:12px;font-weight:700;font-size:13.5px;z-index:200;transition:.2s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal{position:fixed;inset:0;background:rgba(30,26,24,.45);display:none;align-items:center;justify-content:center;z-index:150;padding:16px}
+.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh-2);width:min(560px,100%);max-height:88vh;overflow:auto}
+.modal .hd{display:flex;align-items:center;gap:8px;padding:16px 18px;border-bottom:1px solid var(--line);font-weight:800}
+.modal .bd{padding:16px 18px}
+.modal .ft{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--line)}
+
+/* 표시용 서식([[빨강]] {{굵게}}) */
+.hl{color:#c0392b;font-weight:800}.hlk{font-weight:800}
+
+@media (max-width:640px){ .mockbar{font-size:11.5px} }

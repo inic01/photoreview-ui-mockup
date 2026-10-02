@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>시안 ① 고객 접수폼</title>
+<link rel="stylesheet" href="mock.css">
+<style>
+  body{background:#e9e5e1}
+  .stage{display:flex;justify-content:center;padding:18px 12px 40px;gap:28px;align-items:flex-start}
+  .phone{width:390px;max-width:100%;height:800px;max-height:calc(100vh - 80px);background:var(--bg);border-radius:34px;
+    box-shadow:0 20px 60px rgba(0,0,0,.18),0 0 0 10px #1f1b1a;display:flex;flex-direction:column;overflow:hidden;position:relative}
+  @media (max-width:640px){ .stage{padding:0} .phone{border-radius:0;box-shadow:none;height:calc(100vh - 34px);max-height:none;width:100%} .side{display:none} }
+  .top{background:#fff;border-bottom:1px solid var(--line);padding:12px 18px 10px;flex:0 0 auto}
+  .top .row{display:flex;align-items:center;justify-content:space-between}
+  .top .help{font-size:12.5px;color:var(--sub);font-weight:700;background:var(--sunk2);border:0;border-radius:999px;padding:5px 11px;cursor:pointer}
+  .stepper{display:flex;align-items:center;gap:0;margin:12px 0 6px}
+  .stepper .d{width:9px;height:9px;border-radius:50%;background:#dcd5ce;flex:0 0 auto}
+  .stepper .d.done{background:var(--brand)}
+  .stepper .d.cur{width:13px;height:13px;background:#fff;border:3px solid var(--accent)}
+  .stepper .l{flex:1;height:2px;background:#dcd5ce;margin:0 3px}
+  .stepper .l.done{background:var(--brand)}
+  .steplbl{display:flex;justify-content:space-between;font-size:12.5px}
+  .steplbl b{color:var(--ink)} .steplbl span{color:var(--sub)}
+  .body{flex:1;overflow:auto;padding:18px 16px 24px}
+  .h2{font-size:21px;font-weight:800;letter-spacing:-.02em;margin:2px 0 6px}
+  .lead{color:var(--sub);font-size:13.5px;margin:0 0 16px}
+  .blk{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+  .nav{flex:0 0 auto;display:flex;gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+  .nav .btn{height:52px;border-radius:14px;font-size:16px}
+  .nav .prev{flex:0 0 96px} .nav .next{flex:1}
+  /* 표지 */
+  .hero{background:#fff;border-radius:18px;border:1px solid var(--line);padding:22px 18px;text-align:center;margin-bottom:14px}
+  .hero .logo{height:30px;margin:0 auto 12px}
+  .hero h1{font-size:23px;margin:0 0 4px;letter-spacing:-.02em}
+  .hero p{margin:0;color:var(--sub);font-size:13.5px}
+  .tcard{display:flex;align-items:center;gap:14px;background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;width:100%;text-align:left}
+  .tcard .ic{width:46px;height:46px;border-radius:12px;background:var(--sunk2);display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto}
+  .tcard b{display:block;font-size:16px}
+  .tcard small{color:var(--sub);font-size:12.5px}
+  .tcard .chev{margin-left:auto;color:var(--sub);font-size:20px}
+  .tcard.on{border-color:var(--accent);background:var(--accentbg)}
+  .flow4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+  .flow4 div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center;font-size:11.5px;color:var(--sub);font-weight:700}
+  .flow4 div i{display:block;font-style:normal;font-size:18px;margin-bottom:2px}
+  /* 세그먼트 */
+  .seg{display:flex;background:var(--sunk2);border-radius:12px;padding:4px;margin-bottom:12px}
+  .seg button{flex:1;border:0;background:transparent;height:36px;border-radius:9px;font-weight:700;color:var(--sub);cursor:pointer;font-size:13px}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:var(--sh-1)}
+  details.fold{border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-top:10px;background:var(--sunk)}
+  details.fold summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--ink)}
+  .okcard{background:var(--okbg);border:1px solid #cfe7da;border-radius:14px;padding:14px;margin-top:12px}
+  .okcard b{color:var(--ok)}
+  /* 동의 */
+  .agall{display:flex;align-items:center;gap:10px;background:var(--brand);color:#fff;border-radius:14px;padding:14px;font-weight:800;cursor:pointer;margin-bottom:10px}
+  .agitem{border:1px solid var(--line);border-radius:14px;margin-bottom:8px;background:#fff;overflow:hidden}
+  .agitem .r{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer}
+  .agitem .r b{flex:1;font-size:14px}
+  .agitem .full{display:none;padding:0 14px 12px;color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);padding-top:10px}
+  .agitem.open .full{display:block}
+  .ck{width:26px;height:26px;border-radius:8px;border:2px solid #cfc7c0;display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:#fff;font-weight:900;font-size:15px;background:#fff}
+  .ck.on{background:var(--ok);border-color:var(--ok)}
+  .agall .ck{border-color:rgba(255,255,255,.6);background:transparent}
+  .agall .ck.on{background:var(--ok);border-color:var(--ok)}
+  .tog{font-size:12px;color:var(--sub);background:none;border:0;cursor:pointer;text-decoration:underline}
+  /* 설문 */
+  .qopt{display:flex;align-items:center;gap:10px;min-height:50px;border:1.5px solid var(--line);border-radius:12px;padding:0 14px;margin-bottom:8px;cursor:pointer;background:#fff;font-weight:600}
+  .qopt .rd{width:20px;height:20px;border-radius:50%;border:2px solid #cfc7c0;flex:0 0 auto}
+  .qopt.on{border-color:var(--accent);background:var(--accentbg)}
+  .qopt.on .rd{border:6px solid var(--accent)}
+  .qt{font-weight:800;margin:0 0 10px}
+  /* 제품 */
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .pc{border:2px solid var(--line);border-radius:14px;background:#fff;padding:10px;cursor:pointer;text-align:center}
+  .pc .im{height:74px;border-radius:10px;background:var(--sunk2);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:6px}
+  .pc b{font-size:12.5px;display:block;line-height:1.35}
+  .pc.on{border-color:var(--accent);background:var(--accentbg)}
+  /* 업로드 */
+  .slots{display:flex;gap:8px}
+  .slot{width:96px;height:96px;border-radius:14px;border:2px dashed #cfc7c0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;position:relative;overflow:hidden}
+  .slot .plus{font-size:26px;line-height:1;color:var(--brand)}
+  .slot.filled{border-style:solid;border-color:var(--line)}
+  .slot img{width:100%;height:100%;object-fit:cover}
+  .slot .x{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:0;font-size:12px;cursor:pointer}
+  .slot .no{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.55);color:#fff;font-size:10.5px;border-radius:6px;padding:1px 6px}
+  .slot .ring{position:absolute;inset:0;background:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;color:var(--brand);font-weight:800}
+  .cnt{font-size:12.5px;font-weight:800;color:var(--sub)}
+  .cnt.full{color:var(--ok)}
+  .warnbox{background:var(--warnbg);color:#7a5210;border-radius:12px;padding:10px 12px;font-size:12.5px;margin-top:10px}
+  .exbox{height:150px;border-radius:12px;overflow:hidden;margin-top:8px;border:1px solid var(--line)}
+  .fld{margin-bottom:14px}
+  .addr{display:flex;gap:6px}
+  .ackrow{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;background:#fff}
+  .ackrow.on{border-color:var(--ok);background:var(--okbg)}
+  .ackrow.err{border-color:var(--bad)}
+  /* 확인 */
+  .sum{border:1px solid var(--line);border-radius:14px;background:#fff;margin-bottom:10px}
+  .sum .h{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--line);font-weight:800;font-size:13.5px}
+  .sum .h a{font-size:12.5px;cursor:pointer;font-weight:700;text-decoration:none}
+  .sum dl{margin:0;padding:8px 14px;display:grid;grid-template-columns:76px 1fr;gap:6px 10px;font-size:13.5px}
+  .sum dt{color:var(--sub)} .sum dd{margin:0;font-weight:600;word-break:break-all}
+  /* 완료 */
+  .done{position:absolute;inset:0;background:rgba(30,26,24,.5);display:none;align-items:flex-end;z-index:20}
+  .done.on{display:flex}
+  .sheet{background:#fff;border-radius:22px 22px 0 0;width:100%;padding:24px 20px calc(20px + env(safe-area-inset-bottom));text-align:center;animation:up .25s ease}
+  @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  .tick{width:64px;height:64px;border-radius:50%;background:var(--okbg);margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
+  .tick svg{width:34px;height:34px}
+  .tick path{stroke:var(--ok);stroke-width:4;fill:none;stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .15s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .sheet h3{margin:0 0 6px;font-size:20px}
+  .sheet .msg{color:var(--ink);font-size:13.5px;text-align:left;background:var(--sunk);border-radius:12px;padding:12px;margin:12px 0}
+  .side{width:300px;font-size:13px;color:var(--sub)}
+  .side .card{padding:16px}
+  .side h4{margin:0 0 8px;color:var(--ink)}
+  .side li{margin-bottom:6px}
+  .popup{position:absolute;inset:0;background:rgba(30,26,24,.5);display:none;align-items:center;justify-content:center;z-index:25;padding:20px}
+  .popup.on{display:flex}
+  .popup .pb{background:#fff;border-radius:18px;padding:20px;width:100%;text-align:center}
+</style></head><body>
+<div class="stage">
+  <div class="phone" id="phone">
+    <div class="top" id="top">
+      <div class="row"><img class="logo" src="logo.png" alt="아이닉"><button class="help" onclick="toast('시안: 카카오 상담 채널로 연결됩니다')">💬 문의</button></div>
+      <div id="stepWrap" style="display:none"><div class="stepper" id="stepper"></div><div class="steplbl"><b id="stepName"></b><span id="stepNo"></span></div></div>
+    </div>
+    <div class="body" id="body"></div>
+    <div class="nav" id="nav"><button class="btn prev" id="prev">이전</button><button class="btn primary next" id="next">다음</button></div>
+    <div class="done" id="done"><div class="sheet">
+      <div class="tick"><svg viewBox="0 0 36 36"><path d="M8 19 l7 7 l13 -15"/></svg></div>
+      <h3>접수가 완료되었습니다</h3><div class="hint" id="doneSub"></div>
+      <div class="msg" id="doneMsg"></div>
+      <button class="btn primary lg" style="width:100%" onclick="location.reload()">처음으로</button>
+    </div></div>
+    <div class="popup" id="popup"><div class="pb"><div style="font-size:30px">⚠️</div><h3 style="margin:6px 0">접수하지 못했습니다</h3>
+      <p id="popMsg" style="color:var(--sub);margin:0 0 14px"></p><button class="btn primary" style="width:100%" onclick="$('#popup').classList.remove('on')">확인</button></div></div>
+  </div>
+  <div class="side"><div class="card">
+    <h4>이 시안에서 해 볼 것</h4>
+    <ul style="padding-left:18px;margin:0">
+      <li>포토리뷰 / 쿠팡 정품등록 각각 끝까지 진행</li>
+      <li>필수 칸을 비우고 「다음」 → 칸 아래 빨간 안내</li>
+      <li>사진 칸 ＋ → 내 PC 사진 선택(올라가지 않음) 또는 「샘플 사진 넣기」</li>
+      <li>구매 조회는 아무 값이나 넣으면 샘플 결과가 나옵니다</li>
+      <li>신청 확인의 「수정」 → 해당 단계로 이동</li>
+      <li>S/N 확인 문구는 현재 운영 접수폼 문구 그대로입니다(D-1)</li>
+    </ul>
+    <p class="hint" style="margin:12px 0 0">문구와 이미지는 실제 화면에서 관리자 설정 값으로 바뀝니다.</p>
+  </div></div>
+</div>
+<script src="mock.js"></script>
+<script>
+mockbar("form.html");
+const S = { type:null, step:0, lookup:"ord", found:false, consent:{}, survey:{}, survey2:{}, product:null, shots:[], buy:[], snShot:[], serial:"", ack:false,
+  name:"", phone:"", email:"", road:"", detail:"" };
+const STEPS = {
+  type:"참여 유형", invoice:"구매 확인", consent:"동의", entry:"참여 설문", product:"제품 선택",
+  buy:"구매내역", serial:"S/N 등록", info:"받으실 정보", confirm:"신청 확인" };
+const flow = () => !S.type ? ["type"] : S.type==="review"
+  ? ["type","invoice","consent","entry","info","confirm"]
+  : ["type","consent","entry","product","buy","serial","info","confirm"];
+const CONSENTS = [
+  {id:"privacy", t:"개인정보 수집 및 이용 동의", req:true,  full:"수집 항목: 성함, 연락처, 이메일, 주소, 리뷰 캡처 이미지 … (샘플 전문)"},
+  {id:"trust",   t:"개인정보 처리 위탁 안내",     req:true,  full:"사은품 발송을 위해 택배사에 위탁합니다 … (샘플 전문)"},
+  {id:"ad",      t:"광고성 정보 수신 동의",       req:false, full:"신제품·이벤트 소식을 이메일로 받습니다. 동의하지 않아도 참여 가능합니다."},
+  {id:"photo",   t:"사진·리뷰 마케팅 활용 동의",  req:false, full:"작성하신 리뷰를 홍보에 활용할 수 있습니다. 동의하지 않아도 참여 가능합니다."}];
+const SURVEY = [{q:"성별을 알려 주세요", o:["여성","남성","응답하지 않음"]},{q:"연령대를 알려 주세요", o:["20대 이하","30대","40대","50대 이상"]},{q:"구매하신 경로는?", o:["네이버 검색","지인 추천","SNS 광고","기타"]}];
+const cur = () => flow()[S.step];
+const errs = {};
+function setErr(id, on){ const el=$("#e-"+id); if(el) el.classList.toggle("on", !!on); const inp=$("#"+id); if(inp && inp.classList) inp.classList.toggle("err", !!on); return !!on; }
+
+function render(){
+  const f = flow(), k = cur();
+  $("#stepWrap").style.display = k==="type" ? "none" : "";
+  if(k!=="type"){
+    const st = f.slice(1);  // 표지 제외
+    const i = st.indexOf(k);
+    $("#stepper").innerHTML = st.map((s,j)=> (j?`<span class="l ${j<=i?"done":""}"></span>`:"") + `<span class="d ${j<i?"done":j===i?"cur":""}" title="${STEPS[s]}"></span>`).join("");
+    $("#stepName").textContent = (S.type==="review"?"포토리뷰":"쿠팡 정품등록")+" · "+STEPS[k];
+    $("#stepNo").textContent = (i+1)+" / "+st.length;
+  }
+  $("#prev").style.visibility = S.step ? "visible" : "hidden";
+  $("#next").textContent = k==="confirm" ? "참여 신청하기" : k==="info" ? "신청 내용 확인" : "다음";
+  $("#body").scrollTop = 0;
+  $("#body").innerHTML = VIEWS[k]();
+  (BIND[k]||(()=>{}))();
+}
+const VIEWS = {
+  type: () => `
+    <div class="hero"><img class="logo" src="logo.png" alt="아이닉"><h1>포토리뷰 이벤트</h1><p>리뷰를 남겨 주신 고객님께 사은품을 드려요</p></div>
+    <p class="sec-t">참여 유형을 골라 주세요</p>
+    <button class="tcard ${S.type==="review"?"on":""}" data-t="review"><span class="ic">📷</span><span><b>포토리뷰 참여</b><small>구매 확인 → 리뷰 캡처 등록 · 약 3분</small></span><span class="chev">›</span></button>
+    <button class="tcard ${S.type==="coupang"?"on":""}" data-t="coupang"><span class="ic">✔︎</span><span><b>쿠팡 로켓배송 정품등록</b><small>구매내역 · S/N 사진 등록 · 약 4분</small></span><span class="chev">›</span></button>
+    <div class="errtxt" id="e-type">참여 유형을 선택해 주세요.</div>`,
+  invoice: () => `
+    <div class="h2">구매 내역 확인</div><p class="lead">구매하신 내역을 확인한 뒤 참여하실 수 있어요.</p>
+    <div class="seg">${[["ord","주문번호"],["inv","송장번호"],["np","성함+연락처"]].map(([v,t])=>`<button data-l="${v}" class="${S.lookup===v?"on":""}">${t}</button>`).join("")}</div>
+    <div class="blk">
+      <label class="lbl" for="lk">${S.lookup==="ord"?"주문번호":S.lookup==="inv"?"송장번호":"성함 · 연락처"} <span class="req"></span></label>
+      <input class="inp" id="lk" placeholder="${S.lookup==="np"?"홍길동 010-0000-0000":"숫자만 입력해 주세요"}" inputmode="${S.lookup==="np"?"text":"numeric"}">
+      <div class="errtxt" id="e-lk">조회할 값을 입력해 주세요.</div>
+      <button class="btn primary" style="width:100%;margin-top:10px" id="lkBtn">구매 내역 조회</button>
+      <details class="fold"><summary>주문번호는 어디서 찾나요?</summary><p class="hint" style="margin:8px 0 0">판매처별 안내 이미지가 여기에 펼쳐집니다(실제: guide/*.webp).</p></details>
+    </div>
+    <div id="lkRes">${S.found?foundCard():""}</div>
+    <div class="errtxt" id="e-found">구매 내역을 먼저 조회해 주세요.</div>`,
+  consent: () => {
+    const all = CONSENTS.every(c=>S.consent[c.id]);
+    return `<div class="h2">참여 안내 및 동의</div><p class="lead">필수 항목에 동의하셔야 참여할 수 있어요.</p>
+    <div class="agall" id="agAll"><span class="ck ${all?"on":""}">✓</span>전체 동의하기</div>
+    ${CONSENTS.map(c=>`<div class="agitem" data-c="${c.id}"><div class="r"><span class="ck ${S.consent[c.id]?"on":""}">✓</span><b>${c.t}</b>
+      <span class="chip ${c.req?"bad":"line"} nodot">${c.req?"필수":"선택"}</span><button class="tog" data-full="${c.id}">전문</button></div>
+      <div class="full">${c.full}</div></div>`).join("")}
+    <div class="errtxt" id="e-consent">필수 항목에 동의해 주세요.</div>`; },
+  entry: () => `<div class="h2">참여 설문</div><p class="lead">간단한 설문에 답해 주세요. (3문항)</p>
+    ${SURVEY.map((s,qi)=>`<div class="blk"><p class="qt">${qi+1}. ${s.q} <span class="req"></span></p>
+      ${s.o.map((o,oi)=>`<div class="qopt ${S.survey[qi]===oi?"on":""}" data-q="${qi}" data-o="${oi}"><span class="rd"></span>${o}</div>`).join("")}</div>`).join("")}
+    <div class="errtxt" id="e-entry">모든 문항에 답해 주세요.</div>`,
+  product: () => `<div class="h2">제품 선택</div><p class="lead">정품등록하실 제품을 골라 주세요.</p>
+    <div class="pgrid">${PRODUCTS.slice(0,6).map(p=>`<div class="pc ${S.product===p.code?"on":""}" data-p="${p.code}"><div class="im">📦</div><b>${p.name}</b><span class="hint">${p.code}</span></div>`).join("")}</div>
+    <div class="errtxt" id="e-product">제품을 선택해 주세요.</div>`,
+  buy: () => `<div class="h2">구매 내역 확인</div>
+    <p class="lead">쿠팡 앱·홈페이지의 <b>주문목록</b> 화면을 캡처해 올려 주세요.<br><b>구매일자</b>와 <b>제품명</b>이 함께 보여야 합니다.</p>
+    <div class="blk">${slotsHtml("buy",1,"구매내역 캡처")}
+      <details class="fold"><summary>이렇게 캡처해 주세요 (예시 보기)</summary><div class="exbox">${fakeShot("쿠팡 주문목록 예시","#efe9e3")}</div></details>
+      <div class="warnbox">※ 구매일자나 제품명이 가려진 캡처, 다른 화면 캡처는 지급 대상에서 제외됩니다.</div>
+      <div class="errtxt" id="e-buy">구매내역 캡처를 등록해 주세요.</div></div>`,
+  serial: () => `<div class="h2">시리얼번호(S/N) 등록</div>
+    <p class="lead">시리얼번호를 정확히 기재해 주셔야 기프티콘 발송이 가능합니다.<br>동일한 시리얼번호가 등록될 경우, 사은품/기프티콘은 최초 등록한 1명에게만 발송 됩니다.</p>
+    <div class="blk"><label class="lbl">S/N 라벨 사진 <span class="req"></span></label>
+      ${slotsHtml("snShot",1,"S/N 사진")}
+      <details class="fold" open><summary>이 부분을 촬영해 주세요</summary><div class="exbox">${fakeShot("S/N 라벨 위치 예시","#e3ebe6")}</div></details>
+      <div class="errtxt" id="e-snShot">이미지를 등록해 주세요.</div></div>
+    <div class="blk"><label class="lbl" for="serial">제품에 부착된 S/N 번호 <span class="req"></span></label>
+      <input class="inp" id="serial" value="${esc(S.serial||(prodOf(S.product).code||"")+"-")}" autocapitalize="characters">
+      <div class="hint" style="margin-top:6px">중복 참여 확인에 사용됩니다.</div>
+      <div class="errtxt" id="e-serial">시리얼번호를 입력해 주세요.</div></div>
+    <div class="ackrow ${S.ack?"on":""}" id="ack"><span class="ck ${S.ack?"on":""}">✓</span><span style="font-weight:600;font-size:13.5px">동일한 S/N은 최초 등록 1명에게만 사은품/기프티콘이 발송됨을 확인했습니다. <span class="req"></span></span></div>
+    <div class="errtxt" id="e-ack">확인에 체크해 주세요.</div>`,
+  info: () => `<div class="h2">${S.type==="review"?"캡처 및 받으실 정보":"받으실 정보"}</div>
+    <p class="lead">정확히 입력해 주세요. 오기재 시 발송이 지연되거나 누락될 수 있습니다.</p>
+    ${S.type==="review"?`<div class="blk"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <label class="lbl" style="margin:0">포토리뷰 캡처 이미지 <span class="req"></span></label><span class="cnt ${S.shots.length===3?"full":""}">${S.shots.length} / 3장</span></div>
+      ${slotsHtml("shots",3,"리뷰 캡처")}
+      <p class="hint" style="margin:10px 0 0">본인이 작성한 <b>리뷰 화면</b>을 캡처해 주세요. <b>별점·후기 내용·첨부하신 사진</b>이 함께 보여야 합니다.</p>
+      <details class="fold"><summary>이렇게 캡처해 주세요 (예시 보기)</summary><div class="exbox">${fakeShot("리뷰 캡처 예시")}</div></details>
+      <div class="warnbox">※ 제품 사진, 주문내역, 상품 상세페이지 등 리뷰 화면이 아닌 이미지는 지급 대상에서 제외됩니다.</div>
+      <div class="errtxt" id="e-shots">이미지를 등록해 주세요.</div></div>`:""}
+    <div class="blk">
+      <div class="fld"><label class="lbl" for="name">성함 <span class="req"></span></label><input class="inp" id="name" value="${esc(S.name)}" autocomplete="name"><div class="errtxt" id="e-name">성함을 입력해 주세요.</div></div>
+      <div class="fld"><label class="lbl" for="phone">연락처 <span class="req"></span></label><input class="inp" id="phone" value="${esc(S.phone)}" type="tel" inputmode="numeric" placeholder="010-0000-0000"><div class="errtxt" id="e-phone">연락처를 정확히 입력해 주세요.</div></div>
+      <div class="fld"><label class="lbl" for="email">이메일 <span class="req"></span></label><input class="inp" id="email" value="${esc(S.email)}" type="email" inputmode="email" placeholder="example@email.com"><div class="errtxt" id="e-email">올바른 이메일을 입력해 주세요.</div></div>
+      ${giftOf().rw==="gift"?`<div class="fld" style="margin:0"><label class="lbl">받으실 주소 <span class="req"></span></label>
+        <div class="addr"><input class="inp" id="road" value="${esc(S.road)}" readonly placeholder="주소 검색을 눌러 주세요"><button class="btn" id="addrBtn" style="height:44px;flex:0 0 auto">주소 검색</button></div>
+        <input class="inp" id="detail" value="${esc(S.detail)}" placeholder="상세주소 (동·호수)" style="margin-top:6px"><div class="errtxt" id="e-addr">주소를 입력해 주세요.</div></div>`
+       :`<div class="hint">상품권(기프티콘)은 위 연락처로 발송되어 주소가 필요 없어요.</div>`}
+    </div>
+    <div class="blk" style="background:var(--sunk)"><b>${giftOf().rw==="gift"?"🎁 사은품":"🎫 기프티콘"} · ${esc(giftOf().gift)}</b>
+      <p class="hint" style="margin:4px 0 0">${giftOf().rw==="gift"?(giftOf().pre?"선불로 발송되어 배송비가 없어요.":"착불로 발송되며 배송비는 수령 시 결제됩니다."):"카카오톡 알림톡으로 발송됩니다."}</p></div>`,
+  confirm: () => { const g=giftOf(); return `<div class="h2">신청 내용 확인</div><p class="lead">아래 내용이 맞는지 확인해 주세요.</p>
+    <div class="sum"><div class="h">신청 내용</div><dl><dt>유형</dt><dd>${S.type==="review"?"포토리뷰 이벤트":"쿠팡 정품등록"}</dd>
+      <dt>제품</dt><dd>${esc(prodOf(S.product).name)}</dd><dt>${g.rw==="gift"?"사은품":"기프티콘"}</dt><dd>${esc(g.gift)}</dd>
+      ${S.type==="coupang"?`<dt>S/N</dt><dd>${esc(S.serial)}</dd>`:""}<dt>사진</dt><dd>${S.type==="review"?S.shots.length+"장":"S/N 1장 · 구매내역 1장"}</dd></dl></div>
+    <div class="sum"><div class="h">받으실 정보 <a data-go="info">수정</a></div><dl><dt>성함</dt><dd>${esc(S.name)}</dd><dt>연락처</dt><dd>${esc(S.phone)}</dd>
+      <dt>이메일</dt><dd>${esc(S.email)}</dd>${g.rw==="gift"?`<dt>주소</dt><dd>${esc(S.road+" "+S.detail)}</dd>`:""}</dl></div>
+    ${S.type==="coupang"?`<div class="sum"><div class="h">S/N <a data-go="serial">수정</a></div><dl><dt>번호</dt><dd>${esc(S.serial)}</dd></dl></div>`:""}
+    <div class="warnbox">입력하신 정보가 정확하지 않으면 발송이 지연되거나 누락될 수 있습니다.</div>`; }
+};
+function foundCard(){ return `<div class="okcard"><b>✓ 구매 내역을 찾았어요</b><div style="margin-top:6px;font-size:13.5px">홍*동 · 010-****-1234<br>전기그릴 iSA7 · 1개 · 2026-09-12 · 스마트스토어</div></div>`; }
+function giftOf(){ const p = prodOf(S.product||"iSA7"); return p; }
+function slotsHtml(key,max,label){
+  const arr = S[key]; let h = '<div class="slots">';
+  arr.forEach((src,i)=>{ h += `<div class="slot filled"><img src="${src}" alt=""><button class="x" data-del="${key}:${i}" aria-label="삭제">✕</button>${max>1?`<span class="no">${i+1}</span>`:""}</div>`; });
+  if(arr.length<max) h += `<label class="slot"><span class="plus">＋</span>${arr.length?"추가":label}<input type="file" accept="image/*" hidden data-up="${key}"></label>`;
+  h += '</div>'; if(arr.length<max) h += `<button class="btn ghost sm" data-sample="${key}" style="margin-top:6px">샘플 사진 넣기 (시안용)</button>`;
+  return h;
+}
+const sampleImg = label => "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(fakeShot(label).replace('style="width:100%;height:100%;display:block"',''));
+const BIND = {
+  type: () => $$(".tcard").forEach(b=>b.onclick=()=>{ S.type=b.dataset.t; S.product = S.type==="review"?"iSA7":null; render(); }),
+  invoice: () => {
+    $$(".seg button").forEach(b=>b.onclick=()=>{ S.lookup=b.dataset.l; render(); });
+    $("#lkBtn").onclick=()=>{ if(setErr("lk", !$("#lk").value.trim())) return; S.found=true; $("#lkRes").innerHTML=foundCard(); setErr("found",false); };
+  },
+  consent: () => {
+    $("#agAll").onclick=()=>{ const v=!CONSENTS.every(c=>S.consent[c.id]); CONSENTS.forEach(c=>S.consent[c.id]=v); render(); };
+    $$(".agitem .r").forEach(r=>r.onclick=e=>{ if(e.target.dataset.full){ r.parentNode.classList.toggle("open"); return; } const id=r.parentNode.dataset.c; S.consent[id]=!S.consent[id]; render(); });
+  },
+  entry: () => $$(".qopt").forEach(o=>o.onclick=()=>{ S.survey[o.dataset.q]=+o.dataset.o; render(); }),
+  product: () => $$(".pc").forEach(o=>o.onclick=()=>{ S.product=o.dataset.p; S.serial=""; render(); }),
+  serial: () => { $("#ack").onclick=()=>{ S.ack=!S.ack; render(); }; $("#serial").oninput=e=>S.serial=e.target.value; },
+  info: () => {
+    ["name","phone","email","detail"].forEach(k=>{ const el=$("#"+k); if(el) el.oninput=e=>{ S[k]=e.target.value; if(k==="phone"){ const d=e.target.value.replace(/\D/g,"").slice(0,11); e.target.value=S.phone=d.replace(/^(\d{3})(\d{0,4})(\d{0,4}).*/,(m,a,b,c)=>[a,b,c].filter(Boolean).join("-")); } }; });
+    const ab=$("#addrBtn"); if(ab) ab.onclick=()=>{ S.road="서울특별시 샘플구 예시로 12"; $("#road").value=S.road; toast("시안: 실제로는 카카오 주소검색 창이 열립니다"); };
+  }
+};
+document.addEventListener("change",e=>{
+  const k=e.target.dataset&&e.target.dataset.up; if(!k||!e.target.files[0]) return;
+  const r=new FileReader(); r.onload=()=>{ S[k].push(r.result); render(); }; r.readAsDataURL(e.target.files[0]);   // 브라우저 안에서만 미리보기
+});
+document.addEventListener("click",e=>{
+  const d=e.target.dataset||{};
+  if(d.del){ const [k,i]=d.del.split(":"); S[k].splice(+i,1); render(); }
+  if(d.sample){ S[d.sample].push(sampleImg(d.sample==="buy"?"주문목록":d.sample==="snShot"?"S/N 라벨":"리뷰 캡처")); render(); }
+  if(d.go){ S.step=flow().indexOf(d.go); render(); setTimeout(()=>{ const f=$(".body input:not([readonly])"); if(f) f.focus(); },50); }
+});
+function validate(k){
+  let bad=false; const first=[];
+  const chk=(id,cond)=>{ if(setErr(id,cond)){ bad=true; first.push(id); } };
+  if(k==="type") chk("type",!S.type);
+  if(k==="invoice") chk("found",!S.found);
+  if(k==="consent") chk("consent",!CONSENTS.filter(c=>c.req).every(c=>S.consent[c.id]));
+  if(k==="entry") chk("entry",SURVEY.some((s,i)=>S.survey[i]==null));
+  if(k==="product") chk("product",!S.product);
+  if(k==="buy") chk("buy",!S.buy.length);
+  if(k==="serial"){ chk("snShot",!S.snShot.length); chk("serial",S.serial.replace(/[\s\-_.]/g,"").length<=prodOf(S.product).code.replace(/[\s\-_.]/g,"").length); chk("ack",!S.ack); if(!S.ack) $("#ack").classList.add("err"); }
+  if(k==="info"){
+    if(S.type==="review") chk("shots",!S.shots.length);
+    chk("name",!S.name.trim()); chk("phone",S.phone.replace(/\D/g,"").length<10); chk("email",!/^[^\s@]+@[^\s@.]+\.[^\s@]{2,}$/.test(S.email.trim()));
+    if(giftOf().rw==="gift") chk("addr",!S.road||!S.detail.trim());
+  }
+  if(bad){ const el=$("#e-"+first[0]); if(el) el.scrollIntoView({behavior:"smooth",block:"center"}); const inp=$("#"+first[0]); if(inp&&inp.focus&&inp.tagName==="INPUT") setTimeout(()=>inp.focus(),300); }
+  return !bad;
+}
+$("#next").onclick=()=>{
+  const k=cur(); if(!validate(k)) return;
+  if(k==="confirm"){ const b=$("#next"); b.disabled=true; b.textContent="접수 중…";
+    setTimeout(()=>{ const g=giftOf(); $("#doneSub").textContent=(S.type==="review"?"포토리뷰 이벤트":"쿠팡 정품등록")+" · "+prodOf(S.product).name;
+      $("#doneMsg").innerHTML = rich((S.type==="review"?"리뷰 참여 내용 확인 후 {{"+g.gift+"}} 발송됩니다.\n":"정품등록 확인 후 {{"+g.gift+"}} 발송됩니다.\n")
+        + (g.rw==="gift"?"제품은 순차적으로 발송되며, 평균 1주일 이내 받아보실 수 있습니다.":"기프티콘은 카카오톡 「기프티쇼비즈 알림톡」으로 발송됩니다."))
+        + '<div class="hint" style="margin-top:8px">※ 시안이므로 실제 접수되지 않았습니다.</div>';
+      $("#done").classList.add("on"); b.disabled=false; },700);
+    return; }
+  S.step++; render();
+};
+$("#prev").onclick=()=>{ if(S.step){ S.step--; render(); } };
+render();
+</script></body></html>
