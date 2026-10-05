@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>포토리뷰 UI 시안</title>
+<link rel="stylesheet" href="mock.css">
+<style>
+  .main{max-width:920px;margin:0 auto;padding:34px 20px 50px}
+  .top{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+  .top .logo{height:34px}
+  h1{font-size:24px;margin:0;letter-spacing:-.02em}
+  .lead{color:var(--sub);margin:4px 0 22px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+  a.c{display:block;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;text-decoration:none;color:var(--ink);box-shadow:var(--sh-1);transition:.15s}
+  a.c:hover{transform:translateY(-2px);box-shadow:var(--sh-2);border-color:#dcd4cc}
+  a.c .no{font-size:12px;font-weight:800;color:var(--accent)}
+  a.c b{display:block;font-size:17px;margin:4px 0 6px}
+  a.c p{margin:0;color:var(--sub);font-size:13px}
+  a.c ul{margin:10px 0 0;padding-left:18px;font-size:12.5px;color:var(--sub)}
+  .safe{margin-top:22px;background:var(--okbg);border:1px solid #cfe7da;border-radius:14px;padding:12px 14px;font-size:13px;color:#17663a}
+</style></head><body>
+<div class="main">
+  <div class="top"><img class="logo" src="logo.png" alt="아이닉"><h1>포토리뷰 UI 개편 시안</h1></div>
+  <p class="lead">카드를 눌러 각 화면을 직접 눌러 보세요. 위쪽 검은 띠로 언제든 다른 화면으로 이동할 수 있습니다.</p>
+  <div class="grid">
+    <a class="c" href="form.html"><span class="no">① 고객</span><b>고객 접수폼</b><p>모바일 기준 · 포토리뷰 / 쿠팡 정품등록 끝까지 진행</p>
+      <ul><li>단계 표시 · 하단 고정 버튼</li><li>사진 업로드 슬롯 · 오류 표시</li><li>신청 확인 「수정」 · 완료 화면</li></ul></a>
+    <a class="c" href="admin.html"><span class="no">② 업무</span><b>관리자 업무화면</b><p>부적합 탭부터 · 행을 누르면 오른쪽 상세</p>
+      <ul><li>검색(연락처 숫자만도) · 필터</li><li>상태·중복·AI 요약 2줄 목록</li><li>J/K 키로 다음·이전 건 · 역할 미리보기</li></ul></a>
+    <a class="c" href="settings.html"><span class="no">③ 설정</span><b>이벤트/접수폼 관리</b><p>고객 화면 순서대로 정리한 설정 · 오른쪽 실시간 미리보기</p>
+      <ul><li>S/N 등록 화면(D-1 기준값)</li><li>제품·사은품(음식물처리기 2칸)</li><li>심사 규칙 · 고객 화면 이미지</li></ul></a>
+    <a class="c" href="notices.html"><span class="no">④ 문구</span><b>안내 문구 관리</b><p>「S/N」을 검색해 보세요</p>
+      <ul><li>표시 위치 · 현재/기본 문구</li><li>수정 · 미리보기 · ○○ 경고</li><li>저장 전 변경 확인</li></ul></a>
+    <a class="c" href="reserve.html"><span class="no">⑤ 예약</span><b>예약발송 관리</b><p>문자 안내용 고객 목록 (출고 기능 없음)</p>
+      <ul><li>제품별 묶음 · 고객 수</li><li>한 페이지 10명 · 이전/다음</li><li>문자 발송용 목록 내려받기</li></ul></a>
+  </div>
+  <div class="safe">🔒 이 시안은 샘플 데이터만 씁니다. 운영 Firebase·서버·스프레드시트와 연결되지 않으며, 「저장」을 눌러도 아무것도 저장되지 않습니다.</div>
+</div>
+</body></html>

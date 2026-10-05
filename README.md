@@ -1,16 +1,14 @@
-# 아이닉 포토리뷰 UI 개편 시안 (내부 검토용)
+# 아이닉 포토리뷰 이벤트 — 새 화면 (운영 연결)
 
-운영 시스템과 **연결되지 않은** 클릭형 화면 시안입니다.
+이 저장소의 화면은 **실제 운영 서버·데이터에 연결**되어 있습니다(시안이 아닙니다).
 
-- 모든 고객·주문 데이터는 **가짜 샘플**입니다.
-- 운영 Firebase·서버·스프레드시트를 호출하지 않으며, 「저장」을 눌러도 저장되지 않습니다.
-- 운영 저장소(inic-event)와 별개입니다.
+| 주소 | 화면 |
+|---|---|
+| https://inic01.github.io/photoreview-ui-mockup/ | 고객 접수폼 (새 디자인) |
+| https://inic01.github.io/photoreview-ui-mockup/report.html | 관리자 화면 (새 디자인) |
+| https://inic01.github.io/photoreview-ui-mockup/guide.html | 관리자 사용설명서 |
 
-## 화면
-1. `form.html` 고객 접수폼 (모바일)
-2. `admin.html` 관리자 업무화면
-3. `settings.html` 이벤트/접수폼 관리
-4. `notices.html` 안내 문구 관리
-5. `reserve.html` 예약발송 관리
-
-시작: `index.html`
+- 여기서 접수하면 실제 접수로 저장되고, 관리자 화면의 처리(출고 승인·일괄출고 등)도 실제 데이터에 반영됩니다.
+- 기존 운영 사이트(inic01/inic-event)는 그대로 두었습니다.
+- 서버(eventApi)는 아직 이전 버전입니다. 새 화면은 이전 서버와 함께 동작하도록 확인했습니다.
+- 예전 디자인 시안(샘플 데이터)은 `mockup/` 폴더에 보관했습니다.
