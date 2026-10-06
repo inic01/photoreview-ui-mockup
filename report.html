@@ -858,7 +858,11 @@
      · 제품·사은품 표: 고치는 줄의 첫 칸(제품군)이 눌리지 않게 최소 폭을 주고,
        나머지 칸은 설명 글이 줄바꿈되게 해 표가 본문 안에 들어오게 합니다. */
   @media (min-width:901px){ #page-admin.on{grid-template-columns:184px minmax(0,1fr)} }
-  @media (max-width:2099px){ #evtCfg .cols{grid-template-columns:minmax(0,1fr)} #evtCfg .cols > .side{position:static} }
+  /* 2026-10-06 — 「미리보기·판정 기준」 칸을 1920 모니터 100%에서도 오른쪽에 보이게 합니다(예전 기준은 2100px).
+     · 1880px 이상 : 오른쪽(칸 폭 240px, 2100px 이상은 340px).  · 1880px 미만 : 표 아래(본문이 좁아져 표·입력칸이 잘리는 것을 막으려는 것).
+     ⚠️ 기준을 더 낮추면 제품·사은품 「고치는 줄」(음식물처리기)의 「삭제」 단추가 표 밖으로 밀립니다(로컬 측정). */
+  @media (max-width:1879px){ #evtCfg .cols{grid-template-columns:minmax(0,1fr)} #evtCfg .cols > .side{position:static} }
+  @media (min-width:1880px) and (max-width:2099px){ #evtCfg .cols{grid-template-columns:minmax(0,1fr) 240px} }
   /* ⚠️ 칸 최대 폭은 두지 않습니다 — 2026-10-05 에 170px 로 묶었더니 음식물처리기 「코드별 사은품 이름」 입력칸이 몇 글자 폭으로 찌그러졌습니다.
         칸은 내용만큼 넓어지고, 표가 본문보다 넓으면 표 안에서 가로로 밀립니다. */
   #evtCfg #pane table td:first-child{min-width:150px}
@@ -872,9 +876,30 @@
     #page-admin.on{grid-template-columns:168px minmax(0,1fr);gap:14px}
   }
   #evtCfg .each .r{grid-template-columns:72px minmax(170px,1fr)}
+  /* 2026-10-06 — 제품·사은품 「고치는 줄」(특히 코드별 사은품 이름이 있는 음식물처리기)이 표 폭을 1131px 까지 넓혀,
+     오른쪽에 미리보기 칸이 있으면 「삭제」 단추가 표 밖으로 밀렸습니다. 화면 폭 2100px 미만에서만 칸 최소 폭을 줄입니다
+     (입력칸이 찌그러지지 않도록 사은품 이름 칸은 150px 아래로 줄이지 않습니다). */
+  @media (max-width:2099px){
+    #evtCfg #pane table td:first-child{min-width:130px}
+    #evtCfg #pane table td:first-child select{min-width:130px}
+    #evtCfg td.tight select{min-width:110px}   /* 118 → 110 (「— 안 정함 —」 107px 이 잘리지 않는 최소) */
+    #evtCfg .each{min-width:250px}
+    #evtCfg .each .r{grid-template-columns:72px minmax(150px,1fr)}
+  }
   /* 목록 이름이 「…」로 잘려 구분이 안 되던 곳 — 줄바꿈으로 전부 보이게 (예약발송 제품 지정 · 설문 문항 목차) */
   .rsvnm{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.35}
   #evtCfg .titem .lbl{white-space:normal;overflow:visible;text-overflow:clip}
+#evtCfg.cfg-locked{opacity:.45;pointer-events:none}   /* 설정을 못 불러왔을 때 잠금 (evtCfgLock) */
+/* 역할별 권한 (2026-10-06 확정) — 발주·회계는 조회 + 출고 처리 + 확인필요 재심사 + 예약발송 제품 지정만(승인 취소·직접 판정 등은 못 함).
+   원장 파일 올리기는 관리자·QA 만(html[data-adm="1"]).
+   실제 차단은 Firestore 규칙이 하고, 여기서는 쓸 수 없는 단추를 숨깁니다(applyTabsForRole 이 data-role 을 붙임). */
+html[data-role="order"] [data-act="unapprove"],html[data-role="acct"] [data-act="unapprove"],
+html[data-role="order"] #dtManualBox,html[data-role="acct"] #dtManualBox,
+html[data-role="order"] #dtSnFix,html[data-role="acct"] #dtSnFix,
+html[data-role="order"] #dtSave,html[data-role="acct"] #dtSave,
+html[data-role="order"] #dtApprove,html[data-role="acct"] #dtApprove,
+html:not([data-adm="1"]) .od-upload,
+html[data-role="agent"] #dtManualBox{display:none !important}   /* 「직접 판정」은 관리자·QA 만 — 상담사는 고객검색·전체에서 확인필요 건을 열어도 못 함(규칙도 막음) */
 
   /* ══════════ 왼쪽 메뉴 접기 (2026-10-05) ══════════
      원인: 펼친 사이드바(188~224px)만큼 업무 영역이 줄어, 1280~1440px 화면에서 부적합 표의 「출고 승인」 칸이 화면 밖으로 밀렸습니다.
@@ -899,6 +924,10 @@
     border-radius:7px;background:var(--in-hover);color:var(--ink);text-align:center}
   html[data-side="narrow"] #mainWrap > header #tabs .tcs i.b:first-child{background:var(--badbg);color:var(--bad)}
   html[data-side="narrow"] #mainWrap > header #tabs .tcs i.w:first-child{background:var(--warnbg);color:var(--warnfg)}
+  /* 2026-10-06 — 접힌 메뉴에서 「확인필요」(노랑) 건수가 첫 숫자에 가려지지 않게 아래에 하나 더 보입니다 */
+  html[data-side="narrow"] #mainWrap > header #tabs .tcs{flex-direction:column;gap:1px;align-items:flex-end}
+  html[data-side="narrow"] #mainWrap > header #tabs .tcs i.w:not(:first-child){display:block;font-size:9.5px;font-weight:700;line-height:14px;height:14px;min-width:14px;padding:0 3px;
+    border-radius:7px;text-align:center;background:var(--warnbg);color:var(--warnfg)}
   html[data-side="narrow"] #mainWrap > header .btns{padding:8px 4px 10px;align-items:center !important}
   html[data-side="narrow"] #mainWrap > header #whoBox{flex-direction:column;align-items:center}
   html[data-side="narrow"] #mainWrap > header #whoami{display:none}
@@ -1030,7 +1059,7 @@
   <section class="page" id="page-reserve">
     <div class="rsv-purpose"><span>📮</span><div><b>출고 화면이 아니라 문자 안내용 고객 목록입니다</b> · 입고되면 지정 해제 → 사은품 탭 일괄출고<br>
       품절 등으로 나중에 발송할 <b>제품을 지정</b>하면 그 제품의 <b>적합·부적합·출고 승인</b> 고객이 아래 목록으로 모이고, 적합·출고 승인 건은 사은품 발송목록(일괄출고)에서 빠집니다. <b>확인필요</b> 건은 사은품/상품권 탭의 「확인필요」에서 재심사합니다.</div></div>
-    <div class="panel" style="margin-bottom:14px">
+    <div class="panel rsv-cfg" style="margin-bottom:14px">
       <h3>예약발송 제품 지정</h3>
       <div class="hint" style="margin:0 0 10px">여기서는 <b>제품과 입고 시점</b>만 정합니다. 고객에게 나갈 <b>문장</b>은 <b>안내 문구 탭 → ⑧ 접수 완료 → 「사은품 · 예약발송일 때」</b> 에서 고치세요.</div>
       <div class="chkgrid" id="reserveConfig"></div>
@@ -1205,7 +1234,7 @@
         <div id="syncBox" style="margin-top:10px"></div>
       </div>
 
-      <div class="panel" style="margin-bottom:14px">
+      <div class="panel od-upload" style="margin-bottom:14px">
         <div class="ph"><h3>파일로 올리기 <span class="mute">(과거 데이터)</span></h3>
           <a class="helplink" href="guide.html#upload" target="_blank" rel="noopener">사용법</a></div>
         <div class="hint">평소에는 위쪽 시트 동기화로 충분합니다. ERP에서 받은 과거 데이터를 한 번에 채울 때만 씁니다.</div>
@@ -2117,7 +2146,12 @@ document.addEventListener("keydown",e=>{
   if(e.key==="ArrowLeft")imgGo(-1); else if(e.key==="ArrowRight")imgGo(1);
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeImg();if(typeof closeDetail==="function")closeDetail();}});
-function slice(rows,key){return rows.slice((pageState[key]-1)*PAGE_SIZE,pageState[key]*PAGE_SIZE);}
+/* 2026-10-06 — 마지막 쪽의 건을 다 처리하면 쪽 수가 줄어드는데, 예전에는 줄어든 쪽 번호로 고치기(pager) 전에 잘라서
+   「총 N건」인데 표가 비어 보였습니다. 자르기 전에 쪽 번호를 먼저 맞춥니다(pager 의 보정과 같은 규칙). */
+function slice(rows,key){
+  const pages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));
+  if(pageState[key]>pages)pageState[key]=pages;
+  return rows.slice((pageState[key]-1)*PAGE_SIZE,pageState[key]*PAGE_SIZE);}
 
 /* 전체 (필터 없음 — 전체 리스트) */
 function filteredAll(){return ALL;}
@@ -2614,16 +2648,70 @@ async function reJudgeAll(){
   }catch(err){alert("전체 재심사 요청 실패: "+(err.message||err));}
 }
 window.reJudgeAll=reJudgeAll;
+/* 🔴 일괄출고 이중출고 방어 (2026-10-06 감사)
+      업무 흐름·대상 기준은 그대로입니다 — 「지금 화면의 출고 대상」을 한 번 눌러 출고완료 + 같은 대상 엑셀.
+      화면 목록은 처음 불러온 값이라, 아래 세 경우에 같은 건이 두 번 나갈 수 있었습니다.
+        ① 출고완료 기록이 일부만 실패 → 성공한 건도 화면에 남아, 다시 누르면 엑셀에 또 들어감
+        ② 두 담당자가 각자 화면을 열어 둔 채 차례로 누름
+        ③ 두 담당자가 거의 동시에 누름
+      ①② : 누르는 순간 서버에서 최신 상태를 다시 읽어 **이미 출고완료된 건만 뺍니다**(새 접수를 더하지는 않음).
+      ③   : 한 건씩 「아직 미출고일 때만」 출고완료로 바꿉니다(트랜잭션). 먼저 처리된 건은 알려 드립니다.
+      실패한 건은 엑셀을 다시 받지 않고 기록만 다시 시도할 수 있습니다. */
+async function freshUnshipped(list){
+  const db=await initFirebase(), out=[], gone=[];
+  for(let i=0;i<list.length;i+=50){
+    const part=list.slice(i,i+50);
+    const snaps=await Promise.all(part.map(e=>db.collection(COLLECTION).doc(e._id).get({source:"server"})));
+    snaps.forEach((s,k)=>{
+      const e=part[k], d=s.exists?s.data():null;
+      if(!d || d.shipped===true || d.shipState==="shipped"){
+        gone.push(e);
+        if(d){ const x=ALL.find(y=>y._id===e._id); if(x){ x.shipState="shipped"; x.shipped=true; } }
+      } else out.push(e);
+    });
+  }
+  return {out,gone};
+}
 async function markShipped(rows){
-  const db=await initFirebase();
-  /* mkShipNeed — 마케팅활용 시트의 「이벤트 출고일자」 칸을 나중에 채워 넣으라는 표시.
-     시트는 접수 시점에 한 줄 쌓고 끝이라, 출고는 그때 아직 없습니다.
-     이 표시를 보고 5분마다 도는 일꾼이 그 줄의 출고일자만 나중에 적어 넣습니다(2026-09-09). */
-  await Promise.all(rows.map(e=>db.collection(COLLECTION).doc(e._id).update({
-    shipState:"shipped", shipped:true,
-    shippedAt:firebase.firestore.FieldValue.serverTimestamp(),
-    mkShipNeed:true })));
-  rows.forEach(e=>{const x=ALL.find(y=>y._id===e._id);if(x){x.shipState="shipped";x.shipped=true;}});
+  const db=await initFirebase(), F=firebase.firestore.FieldValue;
+  const done=[], already=[], failed=[];
+  for(let i=0;i<rows.length;i+=40){
+    const part=rows.slice(i,i+40);
+    const rs=await Promise.allSettled(part.map(e=>db.runTransaction(async t=>{
+      const ref=db.collection(COLLECTION).doc(e._id), s=await t.get(ref), d=s.exists?s.data():null;
+      if(!d) throw new Error("없는 접수");
+      if(d.shipped===true || d.shipState==="shipped") return "already";
+      /* mkShipNeed — 마케팅활용 시트의 「이벤트 출고일자」 칸을 나중에 채워 넣으라는 표시.
+         시트는 접수 시점에 한 줄 쌓고 끝이라, 출고는 그때 아직 없습니다.
+         이 표시를 보고 5분마다 도는 일꾼이 그 줄의 출고일자만 나중에 적어 넣습니다(2026-09-09). */
+      t.update(ref,{ shipState:"shipped", shipped:true, shippedAt:F.serverTimestamp(), mkShipNeed:true });
+      return "done";
+    })));
+    rs.forEach((r,k)=>{ const e=part[k]; if(r.status!=="fulfilled") failed.push(e); else (r.value==="done"?done:already).push(e); });
+  }
+  [...done,...already].forEach(e=>{const x=ALL.find(y=>y._id===e._id);if(x){x.shipState="shipped";x.shipped=true;}});
+  return {done,already,failed};
+}
+/* 엑셀을 받은 뒤 출고완료 기록 + 결과 안내 (실패 건은 기록만 다시 시도) */
+async function shipCommit(rows){
+  const who=e=>(e.name||"-")+" · "+String(e.phone||"").replace(/\D/g,"").slice(-4)+" · "+(e.giftItem||"");
+  let todo=rows, already=[];
+  for(;;){
+    let r;
+    try{ r=await markShipped(todo); }
+    catch(err){ r={done:[],already:[],failed:todo}; console.warn("출고완료 기록 실패",err); }
+    already=already.concat(r.already);
+    renderActiveTab();
+    if(!r.failed.length) break;
+    const again=confirm("출고완료 기록에 실패한 건이 "+r.failed.length+"건 있습니다(인터넷 끊김·업무시간 외 등).\n"
+      +"이 건들은 방금 내려받은 엑셀에 들어 있습니다.\n\n「확인」 = 엑셀은 다시 받지 않고 출고완료 기록만 다시 시도\n"
+      +"「취소」 = 그만두기 (이 건들은 목록에 남아 다음 일괄출고 때 다시 들어갑니다 — 엑셀에서 빼거나 관리자에게 알려 주세요)\n\n"
+      +r.failed.slice(0,10).map(who).join("\n")+(r.failed.length>10?"\n…외 "+(r.failed.length-10)+"건":""));
+    if(!again) break;
+    todo=r.failed;
+  }
+  if(already.length) alert("아래 "+already.length+"건은 그사이 다른 담당자가 먼저 출고완료했습니다.\n이중 발송이 되지 않게 방금 내려받은 엑셀에서 이 줄을 지워 주세요.\n\n"
+    +already.slice(0,20).map(who).join("\n")+(already.length>20?"\n…외 "+(already.length-20)+"건":""));
 }
 
 /* 예약발송 */
@@ -2813,10 +2901,12 @@ function badCols(){
     ["경과",e=>elapsedHtml(e)],
     ["기한일",e=>dueHtml(e)],
     ["담당자",e=>opsAgentSel(e)+opsAgentTag(e)],
-    ["수령인",e=>admEsc(e.name||"-")],
+    ["수령인",e=>admEsc(e.name||"-"),"wrapcell"],
     ["연락처",e=>cell(e,"phone")],
-    ["사은품/상품권",e=>admEsc(e.giftItem||"-")],
-    ["사유",e=>admEsc(reasonOf(e)||"-")],
+    ["사은품/상품권",e=>admEsc(e.giftItem||"-"),"wrapcell"],
+    /* 2026-10-06 감사 — 「중복 참여 (이름·주소 · 구매 1개 초과)」 같은 긴 사유가 한 줄로 늘어나
+       1280·1366px 에서 「출고 승인」이 표 밖으로 밀렸습니다. 사유·수령인·사은품은 줄바꿈을 허용합니다. */
+    ["사유",e=>admEsc(reasonOf(e)||"-"),"wrapcell"],
     ["이미지",e=>imgBtn(e)],
     ["응대상태",e=>callBadge(e)],["처리상태",e=>admEsc(e.callResult||"-"),"wrapcell"],
     ["출고승인",e=>`<button class="sm primary" data-act="approve" data-id="${admEsc(e._id)}">출고 승인</button>`]);
@@ -2827,8 +2917,9 @@ function renderBad(){
   const all=badRows(),rows=slice(all,"bad");
   const cols=badCols();
   $("#bCount").textContent="총 "+all.length+"건";
-  $("#tableBad thead").innerHTML="<tr>"+cols.map(c=>`<th>${c[0]}</th>`).join("")+"</tr>";
-  $("#tableBad tbody").innerHTML=rows.map(e=>`<tr class="clickrow${e.agent&&e.agent!==opsMe()&&$("#bfSearch").value.trim()?" other":""}" data-act="detail" data-id="${admEsc(e._id)}">`+cols.map(c=>`<td>${c[1](e)}</td>`).join("")+"</tr>").join("");
+  const cc=c=>c[2]?` class="${c[2]}"`:"";          // 세 번째 값 = td/th class (공통 컬럼과 같은 규칙)
+  $("#tableBad thead").innerHTML="<tr>"+cols.map(c=>`<th${cc(c)}>${c[0]}</th>`).join("")+"</tr>";
+  $("#tableBad tbody").innerHTML=rows.map(e=>`<tr class="clickrow${e.agent&&e.agent!==opsMe()&&$("#bfSearch").value.trim()?" other":""}" data-act="detail" data-id="${admEsc(e._id)}">`+cols.map(c=>`<td${cc(c)}>${c[1](e)}</td>`).join("")+"</tr>").join("");
   const searching=!!$("#bfSearch").value.trim();
   const em=$("#emptyBad");
   em.textContent=searching?"「"+$("#bfSearch").value.trim()+"」(으)로 찾은 건이 없습니다.":"이 조건에 맞는 부적합 건이 없습니다.";
@@ -2925,7 +3016,7 @@ function openDetail(id, readOnly){
     const pc=$("#dtPastCall");
     if(e.callStatus||e.callMemo){
       pc.style.display="";
-      pc.innerHTML=`<b style="color:var(--sub)">지난 응대 기록</b><br>${e.callStatus?`상태 : ${e.callStatus}<br>`:""}${e.callMemo?`메모 : ${String(e.callMemo).replace(/</g,"&lt;")}`:""}`;
+      pc.innerHTML=`<b style="color:var(--sub)">지난 응대 기록</b><br>${e.callStatus?`상태 : ${admEsc(e.callStatus)}<br>`:""}${e.callMemo?`메모 : ${admEsc(e.callMemo)}`:""}`;
     }else pc.style.display="none";
   }
   if(!isBad){
@@ -2945,7 +3036,7 @@ function openDetail(id, readOnly){
     const pc=$("#dtPastCall");
     if(e.callStatus||e.callMemo){
       pc.style.display="";
-      pc.innerHTML=`<b style="color:var(--sub)">지난 응대 기록</b><br>${e.callStatus?`상태 : ${e.callStatus}<br>`:""}${e.callMemo?`메모 : ${String(e.callMemo).replace(/</g,"&lt;")}`:""}`;
+      pc.innerHTML=`<b style="color:var(--sub)">지난 응대 기록</b><br>${e.callStatus?`상태 : ${admEsc(e.callStatus)}<br>`:""}${e.callMemo?`메모 : ${admEsc(e.callMemo)}`:""}`;
     }else pc.style.display="none";
   }
 
@@ -3108,7 +3199,8 @@ document.addEventListener("click",ev=>{
     case "rpage":     pageState.reserve=Math.max(1,Number(el.dataset.n)||1); renderReserve(); break;
     case "rdl":       { const p=el.dataset.p||""; rDownload(reserveList("").filter(x=>(x.product||"")===p),"아이닉_예약발송_문자안내_"+p.replace(/[\\\/:*?"<>|\s]+/g,"_")); break; }
     case "img":     { const e=ALL.find(x=>x._id===id); if(e) openImg(imgUrlsOf(e)); break; }
-    case "unapprove": setOverride(id,false); break;
+    /* 2026-10-06 감사 — 한 번 눌러 바로 취소되면서 승인 기록까지 지워져, 확인을 받습니다 */
+    case "unapprove": if(confirm("수동승인을 취소합니다.\n이 건은 출고 대상에서 빠지고 승인 기록도 지워집니다. 계속할까요?")) setOverride(id,false); break;
     case "rejudge":   reJudge(id); break;
     case "shipped":   setShipState(id,"shipped"); break;
     case "approve":   approveClick(id); break;
@@ -3961,7 +4053,7 @@ function downloadRows(rows,baseName){
   logAccess("다운로드", baseName, rows.length);      // 누가 무엇을 몇 건 받았는지 기록
   const fname=baseName+"_"+todayStr();
   if(typeof XLSX!=="undefined"){const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"data");XLSX.writeFile(wb,fname+".xlsx");}
-  else{const heads=Object.keys(rows[0]);const csv=[heads.join(",")].concat(rows.map(r=>heads.map(h=>`"${String(r[h]==null?"":r[h]).replace(/"/g,'""')}"`).join(","))).join("\n");
+  else{const heads=Object.keys(rows[0]);const csv=[heads.join(",")].concat(rows.map(r=>heads.map(h=>`"${rSafe(r[h]).replace(/"/g,'""')}"`).join(","))).join("\n");
     const blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fname+".csv";a.click();}
   return true;
 }
@@ -3978,12 +4070,23 @@ function exportAllRows(){
 }
 const DL_ORDER=[["접수일시",e=>fmtDate(e._date)],["카테고리",e=>e.category||""],["제품",e=>e.product||""],["사은품",e=>e.giftItem||""],["수령인",e=>e.name||""],["연락처",e=>e.phone||""],["주소",e=>e.address||""],["주문번호",e=>e.orderNo||""],["판매처",e=>e.source||""],["문서ID",e=>e._id||""]];
 const DL_ACCT=[["접수일시",e=>fmtDate(e._date)],["카테고리",e=>e.category||""],["제품",e=>e.product||""],["상품권",e=>e.giftItem||""],["수령인",e=>e.name||""],["연락처",e=>e.phone||""],["주문번호",e=>e.orderNo||""],["판매처",e=>e.source||""],["문서ID",e=>e._id||""]];
-async function dlAndShip(list,cols,fname){
-  if(!list.length){alert("대상 데이터가 없습니다.");return;}
-  if(!confirm(list.length+"건을 다운로드하고 '출고완료' 처리합니다.\n출고완료된 건은 이 목록에서 사라집니다. 계속할까요?"))return;
+async function dlAndShip(list0,cols,fname){
+  if(!list0.length){alert("대상 데이터가 없습니다.");return;}
+  const f=await shipFresh(list0); if(!f) return; const list=f.out;
+  if(!confirm(list.length+"건을 다운로드하고 '출고완료' 처리합니다.\n출고완료된 건은 이 목록에서 사라집니다. 계속할까요?"+f.note))return;
   const rows=list.map(e=>{const o={};cols.forEach(([l,fn])=>o[l]=fn(e));return o;});
   if(!downloadRows(rows,fname))return;
-  try{await markShipped(list);renderActiveTab();}catch(err){alert("출고완료 처리 실패: "+(err.message||err));}
+  await shipCommit(list);
+}
+/* 누르는 순간 최신 상태 확인 — 이미 출고완료된 건만 뺍니다(위 freshUnshipped 설명) */
+async function shipFresh(list0){
+  let f;
+  try{ f=await freshUnshipped(list0); }
+  catch(err){ alert("출고 대상의 최신 상태를 확인하지 못했습니다.\n인터넷 연결을 확인한 뒤 다시 눌러 주세요.\n("+(err.message||err)+")"); return null; }
+  if(f.gone.length) renderActiveTab();
+  if(!f.out.length){ alert("이 목록의 건은 이미 모두 출고완료되었습니다(다른 담당자가 처리). 목록을 새로 그렸습니다."); return null; }
+  f.note=f.gone.length?"\n\n※ "+f.gone.length+"건은 이미 다른 담당자가 출고완료해 이번 대상에서 뺐습니다.":"";
+  return f;
 }
 
 /* 사방넷 발주 양식 (사은품/상품권) — 같은 수령인·같은 품목은 한 줄로 합치고 '수량' 표기.
@@ -4046,14 +4149,15 @@ function downloadSheets(sheets,baseName){
   }else{
     const all=[];ne.forEach(s=>s.rows.forEach(r=>all.push({"배송구분":s.name,...r})));
     const heads=Object.keys(all[0]);
-    const csv=[heads.join(",")].concat(all.map(r=>heads.map(h=>`"${String(r[h]==null?"":r[h]).replace(/"/g,'""')}"`).join(","))).join("\n");
+    const csv=[heads.join(",")].concat(all.map(r=>heads.map(h=>`"${rSafe(r[h]).replace(/"/g,'""')}"`).join(","))).join("\n");
     const blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fname+".csv";a.click();
   }
   return true;
 }
 async function dlShipTemplate(rw,fname){
-  const list=teamElig(rw);
-  if(!list.length){alert("대상 데이터가 없습니다.");return;}
+  const list0=teamElig(rw);
+  if(!list0.length){alert("대상 데이터가 없습니다.");return;}
+  const f=await shipFresh(list0); if(!f) return; const list=f.out;
   const buckets={"착불":[],"선불":[]};
   list.forEach(e=>buckets[shipFeeOf(e)].push(e));
   const sheets=[],flat=[];
@@ -4063,9 +4167,9 @@ async function dlShipTemplate(rw,fname){
     sheets.push({name:bk,rows:r.rows});r.flat.forEach(x=>flat.push(x));
   });
   const lines=sheets.reduce((a,s)=>a+s.rows.length,0);
-  if(!confirm(list.length+"건(합산 "+lines+"줄)을 다운로드하고 '출고완료' 처리합니다.\n출고완료된 건은 목록에서 사라집니다. 계속할까요?"))return;
+  if(!confirm(list.length+"건(합산 "+lines+"줄)을 다운로드하고 '출고완료' 처리합니다.\n출고완료된 건은 목록에서 사라집니다. 계속할까요?"+f.note))return;
   if(!downloadSheets(sheets,fname))return;
-  try{await markShipped(flat);renderActiveTab();}catch(err){alert("출고완료 처리 실패: "+(err.message||err));}
+  await shipCommit(flat);
 }
 
 /* 탭/이벤트 */
@@ -4430,27 +4534,63 @@ async function cnLogs(){
       지금은 「담당자가 고치고 저장하는 것」까지만 됩니다.              */
 const EVT_CFG_DOC = ["eventConfig", "eventSettings"];
 let evtCfgMounted = false;
+/* 🔴 서버의 설정을 실제로 읽어 왔는가 (2026-10-06 감사)
+      설정 편집기는 처음에 기본값으로 그려져 있습니다. 예전에는 불러오기가 실패해도 그 기본값 화면이
+      그대로 열렸고, 거기서 문구 하나만 고쳐 저장해도 제품·사은품·동의·안내 문구 **전부가 기본값으로**
+      덮어써졌습니다. 이제 읽기에 성공했을 때만 편집·저장을 열고, 실패하면 잠그고 다시 불러오게 합니다. */
+let evtCfgLoadOk = false;
+function evtCfgLock(on){
+  const host = document.getElementById("evtCfg");
+  let b = document.getElementById("evtCfgFail");
+  if(host){ if(on) host.setAttribute("inert",""); else host.removeAttribute("inert"); host.classList.toggle("cfg-locked", !!on); }
+  if(!on){ if(b) b.remove(); return; }
+  if(!b && host){
+    b = document.createElement("div"); b.id = "evtCfgFail"; b.setAttribute("role","alert");
+    b.style.cssText = "margin:0 0 12px;padding:12px 14px;border:1px solid var(--bad,#c0392b);border-radius:10px;background:#fdf1f0;color:var(--bad,#c0392b);font-weight:700;display:flex;gap:10px;align-items:center;flex-wrap:wrap";
+    host.parentNode.insertBefore(b, host);
+  }
+  if(b){
+    b.innerHTML = '<span>설정을 불러오지 못했습니다. 지금 보이는 값은 기본값이라 고치거나 저장할 수 없습니다.</span>'
+      + '<button type="button" class="sm primary" id="evtCfgRetry">다시 불러오기</button>';
+    b.querySelector("#evtCfgRetry").addEventListener("click", ()=>{ b.firstChild.textContent = "불러오는 중…"; openEventSettings(); });
+  }
+}
 
 async function openEventSettings(){
-  if(evtCfgMounted || !window.EVTCFG) return;
+  if(!window.EVTCFG) return;
+  /* 조장: 이벤트·접수폼 설정은 읽지도 열지도 않고 「부적합 운영」만 보여 줍니다 */
+  if(!isAdm(ME && ME.role)){ window.EVTCFG.showBadOps(); return; }
+  if(evtCfgMounted) return;
   evtCfgMounted = true;
   let loaded = null;
   try {
     const db = await initFirebase();          /* ⚠️ 이 줄이 빠져 있어서 「db is not defined」가 났습니다 */
-    const d = await db.collection(EVT_CFG_DOC[0]).doc(EVT_CFG_DOC[1]).get();
+    /* 화면에 남아 있던 옛 값(캐시)이 아니라 서버에서 직접 읽습니다 — 연결이 끊겼으면 실패로 봅니다 */
+    const d = await db.collection(EVT_CFG_DOC[0]).doc(EVT_CFG_DOC[1]).get({ source:"server" });
     if(d.exists){
       const v = d.data() || {};
       /* 통째로 한 칸(json)에 넣어 둡니다 — 설문·규칙이 중첩 배열이라
          Firestore 가 배열 안의 배열을 받지 못하기 때문입니다. */
-      if(v.json) loaded = JSON.parse(v.json);
+      if(v.json){
+        loaded = JSON.parse(v.json);
+        /* 편집기는 제품 목록이 없는 값을 받지 않고 기본값을 씁니다 — 그 상태로 저장하면 덮어쓰므로 잠급니다 */
+        if(!loaded || typeof loaded !== "object" || !loaded.products) throw new Error("저장된 설정의 형식이 예상과 다릅니다");
+      }
     }
-  } catch(e){ console.warn("이벤트 설정 불러오기 실패", e); }
+  } catch(e){
+    console.warn("이벤트 설정 불러오기 실패", e);
+    evtCfgLoadOk = false; evtCfgMounted = false;      // 다음에 탭을 열거나 「다시 불러오기」로 다시 시도합니다
+    evtCfgLock(true);
+    return;
+  }
+  evtCfgLoadOk = true; evtCfgLock(false);
   window.EVTCFG.mount(loaded);
 }
 
 /* 설정 화면의 「저장」 버튼이 부릅니다 */
 window.EVTCFG_SAVE = async function(cfg){
-  if(!ME || ME.role !== "master") throw new Error("관리자만 저장할 수 있습니다.");
+  if(!ME || !isAdm(ME.role)) throw new Error("관리자만 저장할 수 있습니다.");
+  if(!evtCfgLoadOk) throw new Error("설정을 불러오지 못한 상태라 저장할 수 없습니다. 「다시 불러오기」를 누른 뒤 고쳐 주세요.");
   const db = await initFirebase();            /* ⚠️ 이 줄이 빠져 있어서 「db is not defined」가 났습니다 */
   await db.collection(EVT_CFG_DOC[0]).doc(EVT_CFG_DOC[1]).set({
     json: JSON.stringify(cfg),
@@ -5108,6 +5248,10 @@ window.__render=(data,cfg)=>{ALL=data.map(x=>({...x,_date:x._date?new Date(x._da
 const ADMIN_API = "https://asia-northeast3-inic-event.cloudfunctions.net/adminApi";
 const ROLE_LABEL = { master:"관리자", qa:"QA담당자", order:"발주담당자", acct:"회계담당자", agent:"상담사" };
 const ROLE_KEYS  = ["master","qa","order","acct","agent"];
+/* 2026-10-06 권한 확정 — QA 는 관리자와 같은 권한입니다(이름·표시만 따로). 서버(adminApi·ordersApi·consentApi)·firestore.rules 의 판정과 같아야 합니다. */
+const isAdm = r => r === "master" || r === "qa";
+/* 조장 = 상담사 역할 + 부적합 운영 설정(OPS.leaders)에 이름이 올라간 사람. 서버·DB 규칙도 같은 명단으로 판정합니다. */
+const isLeaderMe = () => !!(ME && ME.role === "agent" && (OPS.leaders || []).includes(ME.uid));
 
 /* 역할별로 보이는 탭.
    담당 업무가 아닌 화면을 실수로 건드리지 않게 하는 장치입니다.
@@ -5117,7 +5261,7 @@ const ROLE_KEYS  = ["master","qa","order","acct","agent"];
    상담사는 업무상 봐야 하기 때문입니다. 대신 밖으로 나가는 것만 통제합니다. */
 const DL_BY_ROLE = {
   master: null,                              // 전부
-  qa:     ["svPpt","svPptAll"],              // 포토리뷰 리포트 PPT
+  qa:     null,                              // 관리자와 같음(2026-10-06)
   order:  ["dlOrder","dlAcct","dlReserve"],  // 사은품·상품권 일괄출고 · 예약발송 문자 안내 목록
   acct:   ["dlOrder","dlAcct","dlReserve"],
   agent:  []                                 // 없음
@@ -5133,16 +5277,21 @@ function applyDownloadsForRole(){
 
 const TABS_BY_ROLE = {
   master: null,                                                   // 전부
-  qa:     ["all","report","order","acct","bad","reserve","cs","manual"],
+  qa:     null,                                                   // 관리자와 같음(2026-10-06)
   order:  ["all","order","acct","reserve","orders"],
   acct:   ["all","order","acct","reserve","orders"],
-  agent:  ["bad","cs","manual"]              // 전체는 안 봄 — 고객검색으로 충분
+  agent:  ["all","bad","cs","manual"]        // 2026-10-06 확정: 전체·부적합·고객검색·수기접수 (조장은 여기에 관리자 탭이 더해짐)
 };
 function applyTabsForRole(){
   const allow = TABS_BY_ROLE[(ME&&ME.role)||"agent"];
+  /* 2026-10-06 — 역할별로 쓸 수 없는 단추를 CSS 로 숨깁니다(html[data-role=…]).
+     ⚠️ 실제 차단은 Firestore 규칙(firestore.rules)이 합니다. 화면은 헛눌림을 막는 것뿐입니다. */
+  document.documentElement.dataset.role = (ME&&ME.role)||"agent";
+  document.documentElement.dataset.adm = isAdm(ME&&ME.role) ? "1" : "0";
   $$("#tabs .tab").forEach(t=>{
     const k=t.dataset.tab;
-    const on = k==="admin" ? (ME&&ME.role==="master") : (!allow || allow.indexOf(k)>=0);
+    /* 관리자 탭: 관리자·QA 는 전부, 조장은 「부적합 운영」만(openEventSettings 가 그 화면으로 보냄) */
+    const on = k==="admin" ? (isAdm(ME&&ME.role) || isLeaderMe()) : (!allow || allow.indexOf(k)>=0);
     t.style.display = on ? "" : "none";
   });
   /* 볼 수 없는 탭이 열려 있으면 그 역할의 첫 번째 탭으로 옮긴다 */
@@ -5150,9 +5299,15 @@ function applyTabsForRole(){
   if(!cur || cur.style.display==="none"){
     const first=$$("#tabs .tab").find(t=>t.style.display!=="none");
     if(first) switchTab(first.dataset.tab);
+  } else if(!applyTabsForRole._landed){
+    /* 상담사는 로그인하면 「부적합」에서 시작합니다(전체 탭이 생겼어도 예전과 같은 시작 화면) */
+    applyTabsForRole._landed = true;
+    if(ME && ME.role==="agent" && cur.dataset.tab==="all") switchTab("bad");
   }
+  applyTabsForRole._landed = true;
 }
 let ME = null, nightTimer = null, claimTimer = null;
+let loginFails = 0;   /* 이 화면에서 비밀번호를 틀린 횟수(안내 문구용, 새로고침하면 0) */
 
 async function admApi(payload, withKey){
   const h = {"Content-Type":"application/json"};
@@ -5196,6 +5351,7 @@ const AGMSG = {
   network  : "네트워크 연결을 확인해 주세요.",
   auth     : "로그인이 만료되었습니다. 다시 로그인해 주세요.",
   forbidden: "관리자만 할 수 있습니다.",
+  mustchange: "임시 비밀번호입니다. 비밀번호를 먼저 바꿔 주세요.",
   weak     : "비밀번호는 8자 이상이어야 합니다.",
   duplicate: "이미 등록된 이메일입니다.",
   email    : "이메일 형식을 확인해 주세요.",
@@ -5262,7 +5418,16 @@ async function doLogin(){
   $("#agGo").disabled = true; agErr("확인 중…");
 
   const r = await admApi({action:"login", email, password:pw, deviceId:deviceId()});
-  if(!r.ok){ $("#agGo").disabled=false; agErr(agMsg(r.reason)); return; }
+  /* 2026-10-06 — 이 화면에서 비밀번호를 3번 이상 틀리면 재발급 안내를 덧붙입니다.
+     ⚠️ 안내 문구만입니다. 실제 잠금(같은 이메일 10분에 10번)은 서버(adminApi)가 예전 그대로 합니다.
+     ⚠️ 없는 이메일이어도 똑같이 보여 줍니다(계정이 있는지 드러나지 않게). */
+  if(!r.ok){
+    if(r.reason === "badlogin" || r.reason === "rate") loginFails++;
+    $("#agGo").disabled=false;
+    agErr(agMsg(r.reason) + (loginFails >= 3 && r.reason !== "inactive" ? " 비밀번호가 계속 맞지 않으면 관리자에게 비밀번호 재발급을 요청해 주세요." : ""));
+    return;
+  }
+  loginFails = 0;
   localStorage.setItem("inicLastEmail", email);
 
   if(r.key) return enterWithKey(r.key, r.me);
@@ -5351,12 +5516,12 @@ function finishEnter(){
   opsFilterInit=false; loadBadOps();                          // 부적합 운영 설정(조장 표시·배분 명단·고정 규칙)
   loadStaff();
   /* 마케팅·정리도구 소탭은 고객 이메일·연락처가 그대로 나가므로 관리자만 봅니다(2026-09-10). */
-  const _m = ME.role==="master";
+  const _m = isAdm(ME.role);
   if($("#odTabMk"))   $("#odTabMk").style.display   = _m ? "" : "none";
   if($("#odTabTool")) $("#odTabTool").style.display = _m ? "" : "none";
   if(!_m && odTab!=="src") odSwitch("src");
   if($("#mkSheetNow")) $("#mkSheetNow").style.display = _m ? "" : "none";
-  const _mst = ME.role==="master" ? "" : "none";
+  const _mst = isAdm(ME.role) ? "" : "none";
   if($("#resyncBtn"))  $("#resyncBtn").style.display  = _mst;
   if($("#resyncHint")) $("#resyncHint").style.display = _mst;
   syncStatus();
@@ -5364,21 +5529,61 @@ function finishEnter(){
   loadData();
 }
 
-/* ── 밤 10시 자동 로그아웃 (관리자는 예외) ── */
-function scheduleNightLogout(){
-  clearTimeout(nightTimer);
-  if(!ME || ME.role==="master") return;
-  const kstNow = new Date(Date.now() + 9*3600*1000);
-  const kstEnd = new Date(kstNow); kstEnd.setUTCHours(22,0,0,0);
-  let ms = kstEnd.getTime() - kstNow.getTime();
-  if(ms <= 0) ms = 1000;
-  nightTimer = setTimeout(()=>{
-    doLogout("밤 10시가 되어 자동으로 로그아웃되었습니다.\n다음날 오전 9시부터 다시 이용하실 수 있습니다.");
-  }, ms);
+/* ── 자동 로그아웃 ──
+   · 관리자·QA·상담사(조장 포함) : 18:00 에 자동 로그아웃, 17:55 에 미리 안내 (2026-10-06 사용자 확정).
+     09:00~18:00 에는 쓰지 않고 두어도 로그인이 유지됩니다(미사용 시간으로 끊지 않음).
+   · 발주·회계 : 예전 그대로 밤 10시.
+   ⚠️ 로그인할 수 있는 시간(서버·DB 의 밤 10시 차단)은 바꾸지 않았습니다. 그래서 18시 이후에 다시 로그인한 경우는
+      예전 규칙을 따릅니다 — 상담사는 밤 10시, 관리자·QA 는 자동 로그아웃 없음.
+   ⚠️ 시각은 정해 둔 「마감 시각」과 15초마다 비교합니다. 노트북을 덮었다 열어도 지난 시각이면 바로 처리됩니다. */
+const EVE_LOGOUT_ROLES = ["master", "qa", "agent"];
+const NIGHT_MSG = "밤 10시가 되어 자동으로 로그아웃되었습니다.\n다음날 오전 9시부터 다시 이용하실 수 있습니다.";
+let logoutAt = 0, logoutWarnAt = 0, logoutWarned = false, logoutMsg = "";
+function kstAt(h, m){   /* 오늘(한국 시각) h시 m분의 실제 시각(ms) */
+  const k = new Date(Date.now() + 9*3600*1000); k.setUTCHours(h, m, 0, 0);
+  return k.getTime() - 9*3600*1000;
 }
+function scheduleNightLogout(){
+  clearInterval(nightTimer); clearTimeout(nightTimer); nightTimer = null;
+  logoutAt = 0; logoutWarnAt = 0; logoutWarned = false; hideLogoutWarn();
+  if(!ME) return;
+  const now = Date.now();
+  if(EVE_LOGOUT_ROLES.includes(ME.role) && now < kstAt(18, 0)){
+    logoutAt = kstAt(18, 0); logoutWarnAt = kstAt(17, 55);
+    logoutMsg = "18시가 되어 자동으로 로그아웃되었습니다.";
+  } else if(!isAdm(ME.role)){
+    /* 발주·회계, 그리고 18시 이후에 로그인한 상담사 — 예전처럼 밤 10시 */
+    const ten = kstAt(22, 0);
+    logoutAt = now < ten ? ten : now + 1000; logoutMsg = NIGHT_MSG;
+  }
+  if(!logoutAt) return;
+  nightTimer = setInterval(checkAutoLogout, 15000);
+  checkAutoLogout();
+}
+function checkAutoLogout(){
+  if(!ME || !logoutAt) return;
+  const now = Date.now();
+  if(now >= logoutAt){ doLogout(logoutMsg); return; }
+  if(logoutWarnAt && now >= logoutWarnAt && !logoutWarned){ logoutWarned = true; showLogoutWarn(); }
+}
+document.addEventListener("visibilitychange", () => { if(!document.hidden) checkAutoLogout(); });
+function showLogoutWarn(){
+  let b = document.getElementById("logoutWarn");
+  if(!b){
+    b = document.createElement("div"); b.id = "logoutWarn"; b.setAttribute("role", "alert");
+    b.style.cssText = "position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:3000;max-width:calc(100vw - 32px);"
+      + "display:flex;gap:12px;align-items:center;padding:12px 16px;border-radius:10px;background:#FDF6E7;border:1px solid #B7791F;"
+      + "color:#5c3d0a;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.12)";
+    b.innerHTML = '<span>18시에 자동 로그아웃됩니다. 저장 중인 작업을 확인해 주세요.</span>'
+      + '<button type="button" class="sm">확인</button>';
+    b.querySelector("button").addEventListener("click", hideLogoutWarn);
+    document.body.appendChild(b);
+  }
+}
+function hideLogoutWarn(){ const b = document.getElementById("logoutWarn"); if(b) b.remove(); }
 
 async function doLogout(msg){
-  clearTimeout(nightTimer); clearInterval(claimTimer);
+  clearInterval(nightTimer); clearTimeout(nightTimer); nightTimer = null; logoutAt = 0; hideLogoutWarn(); clearInterval(claimTimer);
   try{ await firebase.auth().signOut(); }catch(_){}
   ME=null; window._db=null; ALL=[]; OPS={members:[],leaders:[],fixed:Object.assign({},OPS_FIXED_DFLT),loaded:false}; opsFilterInit=false;
   $("#mainWrap").style.visibility="hidden";
@@ -5403,7 +5608,7 @@ function roleSelectHtml(uid, cur){
 }
 
 async function admRender(quiet){
-  if(!ME || ME.role!=="master") return;
+  if(!ME || !isAdm(ME.role)) return;
   const box=$("#admList");
   /* 🔴 역할·상태를 바꾼 뒤 다시 그릴 때는 「불러오는 중…」으로 비우지 않습니다.
         표가 잠깐 사라지면 페이지가 짧아져 화면이 맨 위로 튕겼습니다(2026-09-29). */
@@ -5419,7 +5624,7 @@ async function admRender(quiet){
           : u.mustChangePassword ? '<span style="color:#b26a00;font-weight:700">첫 로그인 대기</span>'
           : '사용 중';
         const me = u.uid===ME.uid;
-        return '<tr><td>'+(me?'<b>마스터 계정</b>':admEsc(u.name))+'</td>'
+        return '<tr><td>'+(me?'<b>'+(ME.role==="master"?"마스터 계정":"내 계정")+'</b>':admEsc(u.name))+'</td>'
           +'<td>'+admEsc(u.email)+'</td>'
           +'<td>'+(me?'<b>'+admEsc(ROLE_LABEL[u.role]||"")+'</b>':roleSelectHtml(u.uid,u.role))+'</td>'
           +'<td>'+state+'</td>'
@@ -5588,7 +5793,7 @@ function admFromSheet(rows){
 function admTemplate(){
   const ws=XLSX.utils.aoa_to_sheet([
     ["이름","이메일","역할"],
-    ["강문정","answjddl@i-nic.kr","발주담당자"],
+    ["김예시","kim.example@i-nic.kr","발주담당자"],   // 예시는 가짜 값 (2026-10-06 — 실제 직원 이름이 공개 파일에 있었음)
     ["홍길동","hong@i-nic.kr","상담사"],
     ["","",""]
   ]);
@@ -5681,7 +5886,7 @@ function opsMD(d){ if(!d) return "-"; const k = new Date(d.getTime() + 9*3600000
 function opsMe(){ return (ME && ME.name) || ""; }
 function opsRole(){
   const r = (ME && ME.role) || "agent";
-  if(r === "master") return "master";
+  if(isAdm(r)) return "master";
   if(r === "agent")  return (OPS.leaders || []).includes(ME && ME.uid) ? "lead" : "agent";
   return "other";
 }
@@ -5702,6 +5907,8 @@ async function loadBadOps(){
     };
   }catch(err){ console.warn("부적합 운영 설정을 못 읽었습니다(기본값으로 동작)", err); OPS.loaded = true; }
   try{ if(curTab === "bad") renderBad(); }catch(_){}
+  /* 조장 표시는 이 설정에서 오므로, 읽은 뒤에 메뉴(관리자 탭)를 다시 맞춥니다 */
+  try{ applyTabsForRole(); }catch(_){}
 }
 async function opsSaveCfg(part){
   const db = await initFirebase();
@@ -5710,7 +5917,7 @@ async function opsSaveCfg(part){
 }
 /* 서버(자동 배분)는 상담사 명단을 adminApi 에서 못 받으므로, 여기서 한 부 적어 둡니다. 관리자가 열 때 맞춥니다. */
 async function opsSyncMembers(){
-  if(!ME || ME.role !== "master" || !AGENTS.length) return;
+  if(!ME || !isAdm(ME.role) || !AGENTS.length) return;
   const prev = new Map((OPS.members || []).map(m => [m.uid, m]));
   const next = AGENTS.map(a => ({ uid:a.uid, name:a.name, on: prev.has(a.uid) ? prev.get(a.uid).on !== false : true, lead:(OPS.leaders || []).includes(a.uid) }));
   const sig = l => JSON.stringify(l.map(m => [m.uid, m.name, m.on !== false, m.lead === true]).sort());
@@ -6347,7 +6554,7 @@ function renderOpsAdmin(){
   box.innerHTML =
     '<div class="panel"><h3>고정 배분 규칙</h3>'
     +'<div class="hint" style="margin:0 0 8px">접수되는 순간 부적합 건을 <b>자동으로 나눕니다.</b> 아래 규칙에 걸리는 건은 정해 둔 사람에게 고정되고, 나머지는 <b>이번 달에 가장 적게 받은 분부터</b> 돌아갑니다.<br>'
-    +'휴가인 분은 <b>사용자 목록의 「배분 받음」</b>을 꺼 두세요. 이미 배정된 건은 건드리지 않습니다.</div>'
+    +'휴가인 분은 아래 <b>「배분에서 잠시 뺄 분」</b>에 체크해 두세요. 이미 배정된 건은 건드리지 않습니다.</div>'
     +'<div class="filters"><label style="font-weight:700;font-size:12.5px"><input type="checkbox" id="fxOn"'+(fx.on!==false?" checked":"")+'> 고정 규칙 사용</label>'
     +'<span style="font-size:12.5px">판매처에</span><input id="fxSrcs" value="'+admEsc(fx.srcs||"")+'" style="max-width:190px" placeholder="예: 스마트스토어">'
     +'<span style="font-size:12.5px">이(가) 들어가고 별점이</span><input id="fxMax" type="number" min="1" max="5" value="'+admEsc(fx.maxRating||2)+'" style="max-width:60px">'
@@ -6361,9 +6568,9 @@ function renderOpsAdmin(){
     +'<div id="vacBox" style="display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px">'
     + AGENTS.filter(a => !(OPS.leaders || []).includes(a.uid)).map(a => { const mm = (OPS.members || []).find(x => x.uid === a.uid); return '<label style="font-size:12.5px;font-weight:700;white-space:nowrap"><input type="checkbox" class="vacA" value="'+admEsc(a.uid)+'"'+((mm && mm.on === false)?" checked":"")+'> '+admEsc(a.name)+'</label>'; }).join("")
     +'</div><span id="vacState" style="font-size:12.5px;font-weight:800"></span></div></div>'
-    +'<div class="panel"><h3>월별 처리 리포트 <span style="color:var(--sub);font-weight:600;font-size:12px">(관리자만 볼 수 있습니다)</span></h3>'
+    +'<div class="panel"><h3>월별 처리 리포트 <span style="color:var(--sub);font-weight:600;font-size:12px">(관리자·QA·조장만 볼 수 있습니다)</span></h3>'
     +'<div class="filters"><select id="repMonthSel">'+months.map(m => opt(m, m.slice(0,4)+"년 "+(+m.slice(5))+"월", m === repMonth)).join("")+'</select>'
-    +'<span class="opill ok">관리자 — 전체 담당자</span><span style="flex:1"></span><button class="sm" id="repXl">엑셀로 받기</button></div>'
+    +'<span class="opill ok">'+(isAdm(ME&&ME.role)?"관리자":"조장")+' — 전체 담당자</span><span style="flex:1"></span><button class="sm" id="repXl">엑셀로 받기</button></div>'
     +'<div class="ocards">'
     + opsCard("처리건 (아웃콜)", sum("mine")+"건")
     + opsCard("인콜 (실적 제외)", sum("inc")+"건")
@@ -6768,7 +6975,7 @@ function mkDownloadSheets(sheets, baseName){
   }else{
     const rows = sheets.flatMap(s => s.rows.map(r => Object.assign({ "구분":s.name }, r)));
     const heads = ["구분", ...MK_HEAD];
-    const csv = [heads.join(",")].concat(rows.map(r=>heads.map(h=>`"${String(r[h]==null?"":r[h]).replace(/"/g,'""')}"`).join(","))).join("\n");
+    const csv = [heads.join(",")].concat(rows.map(r=>heads.map(h=>`"${rSafe(r[h]).replace(/"/g,'""')}"`).join(","))).join("\n");
     const blob = new Blob(["\ufeff"+csv], { type:"text/csv;charset=utf-8;" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = fname + ".csv"; a.click();
   }
@@ -6793,7 +7000,9 @@ $("#mkDownload").addEventListener("click", mkDownload);
    ⚠️ 이 기능을 붙이기 전에 접수된 건은 「표시」가 없어 자동으로는 안 올라갑니다.
       그래서 물어본 뒤 예전 건까지 훑는 방식도 함께 씁니다. */
 async function mkSheetNow(){
-  const back = confirm("마케팅활용 시트에 지금 올립니다.\n\n예전에 접수된 건까지 함께 올리려면 「확인」,\n새로 들어온 것만 올리려면 「취소」를 눌러 주세요.");
+  /* 2026-10-06 감사 — 예전에는 「취소」가 중단이 아니라 「새 건만 올리기」였습니다. 중단을 먼저 묻습니다. */
+  if(!confirm("마케팅활용 시트에 지금 올릴까요?\n\n「취소」를 누르면 아무것도 하지 않습니다.")) return;
+  const back = confirm("예전에 접수된 건까지 함께 올릴까요?\n\n「확인」 = 예전 건까지 함께\n「취소」 = 새로 들어온 것만");
   const btn=$("#mkSheetNow"); btn.disabled=true;
   $("#mkState").textContent="시트에 올리는 중…"; $("#mkState").style.color="";
   const r = await ordApi({ action:"mkSync", backfill: back });
@@ -6855,7 +7064,7 @@ function lgRender(){
     +'</tbody></table>';
 }
 async function lgLoad(){
-  if(!ME||ME.role!=="master") return;
+  if(!ME||!isAdm(ME.role)) return;
   $("#lgState").textContent="불러오는 중…";
   try{
     const db=await initFirebase();
@@ -6879,7 +7088,7 @@ function lgSetOpen(on, remember){
   const b = $("#lgBody"), a = $("#lgArrow"); if(!b) return;
   b.hidden = !on; if(a) a.textContent = on ? "▾" : "▸";
   if(remember){ try{ localStorage.setItem("lgOpen", on ? "1" : "0"); }catch(_){} }
-  if(on && !lgLoadedOnce && ME && ME.role === "master"){ lgLoadedOnce = true; lgLoad(); }
+  if(on && !lgLoadedOnce && ME && isAdm(ME.role)){ lgLoadedOnce = true; lgLoad(); }
 }
 $("#lgHead").addEventListener("click", () => lgSetOpen(!lgIsOpen(), true));
 try{ if(localStorage.getItem("lgOpen") === "1") lgSetOpen(true, false); }catch(_){}
@@ -7308,6 +7517,8 @@ const DEFAULTS = {
     fileTooBig:   { t:"사진 용량이 너무 큽니다 (○○).\n다른 사진으로 시도하시거나, 화면을 캡처해서 올려주세요.", k:false },
     netFail:      { t:"네트워크가 불안정해 사진 전송이 중단되었습니다.\nWi-Fi 연결 후 다시 시도해 주세요.", k:false },
     uploadFail:   { t:"사진을 저장하지 못했습니다. 용량이 크거나 형식이 맞지 않을 수 있습니다.\n다른 사진으로 다시 시도해 주세요.", k:false },
+    /* 2026-10-06 — 사진이 아닌 파일을 골랐을 때 (접수폼 isImageFile 과 같은 글자) */
+    fileNotImage: { t:"○○ 은(는) 사진 파일이 아닙니다.\n사진(이미지) 파일을 골라 주세요.", k:false },
 
     /* ── 접수 (서버가 막았을 때) ── */
     submitRate:   { t:"접수 시도가 너무 잦습니다.\n잠시 후 다시 시도해 주세요.", k:true },
@@ -7320,6 +7531,10 @@ const DEFAULTS = {
     snImageMissing: { t:"S/N 라벨 사진을 업로드해 주세요.", k:false },
     buyImageMissing:{ t:"구매내역 캡처를 업로드해 주세요.", k:false },
     serialMissing:  { t:"시리얼번호(S/N)를 입력해 주세요.", k:false },
+    /* 2026-10-06 — 접수 중에 동의 항목이 바뀌어 서버가 받지 않았을 때 (접수폼 API_ERR 과 같은 글자) */
+    consentChanged: { t:"참여 안내 내용이 변경되었습니다.\n화면을 새로고침한 뒤 다시 접수해 주세요.", k:false },
+    /* 2026-10-06 — 접수 저장 응답이 90초 넘게 없을 때 (접수폼 API_ERR 과 같은 글자) */
+    submitTimeout:{ t:"응답이 늦어지고 있습니다. 입력하신 내용은 그대로 있으니 잠시 후 「접수 신청」을 다시 눌러 주세요.\n이미 접수되었는지는 첫 화면의 「참여 조회」에서 확인하실 수 있습니다.", k:false },
     submitErr:    { t:"접수 중 오류가 발생했습니다.\n잠시 후 다시 시도해 주세요. 계속 실패하면 상담사에게 문의해 주세요.", k:true },
 
     /* ── 접수 완료 창 ── */
@@ -7468,8 +7683,10 @@ function paneGift(){
             /* 접수폼 제품 고르기 — 이게 있어야 사은품·설문·프로모션이 고객 화면에 붙습니다 */
             el("div", { style:"margin-top:6px" },
               el("div", { style:"font-size:11px;color:var(--sub);margin-bottom:3px" }, "접수폼 제품"),
+              /* title — 이름이 긴 제품(음식물처리기 iFD01 (…))은 칸에서 잘려 보여, 마우스를 올리면 전체 이름이 보이게 합니다 */
               el("select", { "aria-label":"접수폼 제품",
-                onchange:e => { const v = e.target.value;
+                title:(FORM_PRODUCTS.find(([v]) => v === (p.codes || []).join(",")) || [null, ""])[1],
+                onchange:e => { e.target.title = (e.target.selectedOptions[0] || {}).text || ""; const v = e.target.value;
                   p.codes = v ? v.split(",") : []; softRefresh(); } },
                 el("option", { value:"", ...((p.codes||[]).length ? {} : { selected:"" }) }, "이벤트 대상 아님"),
                 FORM_PRODUCTS.map(([v, n]) => el("option", {
@@ -8645,7 +8862,8 @@ const NOTICE_GROUPS = [
   ["⑥ 캡처 이미지 올릴 때", [
     ["fileTooBig", "사진 용량 초과", "고른 사진이 너무 클 때"],
     ["netFail",    "전송 중 끊김",   "업로드 도중 인터넷이 끊겼을 때"],
-    ["uploadFail", "사진 저장 실패", "형식이 맞지 않는 등 저장에 실패했을 때"]
+    ["uploadFail", "사진 저장 실패", "형식이 맞지 않는 등 저장에 실패했을 때"],
+    ["fileNotImage", "사진 파일이 아님", "문서 등 사진이 아닌 파일을 골랐을 때 · ○○ 자리에 파일 이름이 들어갑니다"]
   ]],
   ["⑦ 「참여 신청하기」를 눌렀는데 서버가 막았을 때", [
     ["submitRate",     "접수 시도 과다",       "짧은 시간에 접수를 여러 번 눌렀을 때"],
@@ -8657,6 +8875,8 @@ const NOTICE_GROUPS = [
     ["snImageMissing", "S/N 사진 없음",        "쿠팡 정품등록 · 필수인 S/N 라벨 사진 없이 접수됐을 때"],
     ["buyImageMissing","구매내역 캡처 없음",   "쿠팡 정품등록 · 필수인 구매내역 캡처 없이 접수됐을 때"],
     ["serialMissing",  "S/N 미입력",           "쿠팡 정품등록 · 필수인 S/N 없이 접수됐을 때"],
+    ["consentChanged", "동의 항목 변경",       "고객이 접수하는 사이 동의 항목 설정이 바뀌었을 때"],
+    ["submitTimeout",  "응답 지연",            "접수 저장 응답이 90초 넘게 없을 때 · 입력은 그대로 남습니다"],
     ["submitErr",      "접수 중 오류",         "그 밖의 오류일 때"]
   ]],
   ["⑧ 접수 완료 — 초록 팝업 창", [
@@ -9082,16 +9302,16 @@ const NT_PH = {
   consentDeny:"동의 항목 이름", checkNone:"고객 성함", doneGiftReserve:"입고 시점(예약발송 탭에서 적은 값)",
   checkShipped:"앞 ○○ = 사은품, {{○○}} = 출고일자", checkShippedCoupon:"앞 ○○ = 기프티콘, {{○○}} = 발송일자",
   checkWait:"앞 ○○ = 참여 유형, 뒤 ○○ = 사은품/기프티콘", dupAskReview:"채널 이름(아이닉)", dupAskCoupang:"채널 이름(아이닉)",
-  fileTooBig:"사진 용량"
+  fileTooBig:"사진 용량", fileNotImage:"파일 이름"
 };
 /* 상담 버튼(MSGK)을 접수폼이 실제로 읽는 문구 — index.html 의 MSGK( 호출 + showNotice 로 띄우는 문구 전부.
    ⚠️ 여기 없는 문구는 스위치를 켜 두어도 고객 화면에 버튼이 나오지 않습니다(저장된 값은 지우지 않습니다).
    ⚠️ notFound* · checkShipped* · dupAsk* 는 접미사가 붙는 식구들이라 이름 앞부분으로 맞춥니다. */
 const NT_KAKAO_KEYS = new Set([
   "rate","noTarget","readFail","dupAll","checkConsult","checkWait","doneGiftReserve",
-  "fileTooBig","netFail","uploadFail",
+  "fileTooBig","netFail","uploadFail","fileNotImage",
   "submitRate","tokenExpired","productMismatch","inputInvalid","originBlocked",
-  "imageMissing","snImageMissing","buyImageMissing","serialMissing","submitErr"
+  "imageMissing","snImageMissing","buyImageMissing","serialMissing","consentChanged","submitTimeout","submitErr"
 ]);
 const ntKakaoOk = k => NT_KAKAO_KEYS.has(k) || /^(notFound|checkShipped|dupAsk)/.test(k);
 const phN = t => (String(t == null ? "" : t).match(/○○|○/g) || []).length;
@@ -9494,11 +9714,20 @@ function paneImages(){
     sub: exOk !== exName ? "(설정의 파일 이름이 규칙에 맞지 않아 기본 파일을 봅니다)" : "",
     size:"설정 「접수 화면별 › 구매내역」의 파일 이름과 같아야 합니다 · 권장 가로 1560px · .webp · 200KB 이하" })];
 
+  /* ⑤ 포토리뷰 캡처 예시 — 2026-10-06 부터 접수폼 안에 박지 않고 examples/ 폴더 파일로 씁니다(첫 화면을 가볍게).
+        ⚠️ 접수폼(index.html)의 EXAMPLE_IMG 와 같은 목록입니다. 파일이 없으면 예시 칸만 숨겨집니다. */
+  const REVIEW_EX_FILES = [["에어프라이어", "ex_af.webp"], ["무선청소기", "ex_vac.webp"], ["가습기·공기청정기", "ex_air.webp"],
+    ["분유포트", "ex_pot.webp"], ["서큘레이터", "ex_circ.webp"], ["음식물처리기", "ex_food.webp"], ["헤어드라이어", "ex_hair.webp"]];
+  const revExRows = REVIEW_EX_FILES.map(([label, f]) => imgRow({
+    label, folder:"examples/", missFile:f, cands:[{ url:"examples/" + f, file:f }],
+    size:"포토리뷰 사진 올리는 칸의 「캡처 예시」 · 파일 이름 고정 · .webp · 200KB 이하" }));
+
   const secs = [
     sec("사은품 사진", "gifts/", giftRows, "접수폼의 사은품 카드에 나옵니다. 사은품 이름을 바꾸면 파일 이름도 같이 바꿔야 합니다."),
     sec("S/N 라벨 위치 사진", "sn/ · 쿠팡 정품등록", snRows, "S/N 등록 화면의 「이 부분을 촬영해 주세요」 사진입니다. 제품마다 파일이 정해져 있습니다."),
     sec("주문번호 확인 방법 안내", "guide/ · 포토리뷰", guideRows, "구매 확인 화면의 「주문번호 어디서 보나」 판매처별 안내 사진입니다."),
-    sec("쿠팡 구매내역 캡처 예시", "examples/ · 쿠팡 정품등록", exRows, "")
+    sec("쿠팡 구매내역 캡처 예시", "examples/ · 쿠팡 정품등록", exRows, ""),
+    sec("포토리뷰 캡처 예시", "examples/ · 포토리뷰", revExRows, "사진 올리는 칸의 「캡처 예시」입니다. 제품 종류별로 파일이 정해져 있습니다.")
   ];
   Promise.all(probes).then(rs => {
     const miss = rs.filter(x => !x).length;
@@ -9658,14 +9887,20 @@ function renderNav(){
   if(!nav) return;
   const secs = [...new Set(LAST_UNITS.map(u => u.sec))];
   const dotFor = k => secs.some(s => s === k || s.indexOf(k + ":") === 0);
-  const sig = navCur + "|" + navSub + "|" + secs.sort().join(",");
+  /* 로그인 전에는 ME 가 없어 메뉴가 줄어든 채 그려집니다 — 권한이 달라지면 다시 그리도록 서명에 넣습니다 */
+  const sig = (isAdm(ME && ME.role) ? "A" : "L") + "|" + navCur + "|" + navSub + "|" + secs.sort().join(",");
   if(nav._sig === sig) return;
   nav._sig = sig;
   const dot = () => el("span", { class:"nd", title:"저장 안 한 변경이 있습니다" });
   nav.replaceChildren();
+  const adm = isAdm(ME && ME.role);
   NAV.forEach(g => {
+    /* 조장은 「운영 관리 > 부적합 운영」만 봅니다(2026-10-06 확정). 관리자·QA 는 전부.
+       ⚠️ 화면만이 아니라 DB 규칙도 조장에게는 설정·사용자 쓰기를 막습니다. */
+    const items = adm ? g.items : g.items.filter(it => it.k === "badops");
+    if(!items.length) return;
     nav.append(el("div", { class:"ng" }, g.g));
-    g.items.forEach(it => {
+    items.forEach(it => {
       if(it.link){
         nav.append(el("button", { type:"button", title:"메인 화면의 예약발송 탭으로 이동합니다", onclick:goReserve }, it.t));
         return;
@@ -10067,6 +10302,8 @@ window.EVTCFG = {
     showUsers(false);
     render();
   },
+  /* 조장용 — 설정 편집기를 열지 않고 「부적합 운영」 화면만 엽니다 */
+  showBadOps(){ navGo("badops"); },
   get(){ return clone(cfg); },
   /* 검사 스크립트용 — 기본값 꾸러미를 그대로 내줍니다. 운영 화면은 쓰지 않습니다. */
   defaults(){ return clone(DEFAULTS); }
