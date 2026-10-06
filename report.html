@@ -859,17 +859,57 @@
        나머지 칸은 설명 글이 줄바꿈되게 해 표가 본문 안에 들어오게 합니다. */
   @media (min-width:901px){ #page-admin.on{grid-template-columns:184px minmax(0,1fr)} }
   @media (max-width:2099px){ #evtCfg .cols{grid-template-columns:minmax(0,1fr)} #evtCfg .cols > .side{position:static} }
+  /* ⚠️ 칸 최대 폭은 두지 않습니다 — 2026-10-05 에 170px 로 묶었더니 음식물처리기 「코드별 사은품 이름」 입력칸이 몇 글자 폭으로 찌그러졌습니다.
+        칸은 내용만큼 넓어지고, 표가 본문보다 넓으면 표 안에서 가로로 밀립니다. */
   #evtCfg #pane table td:first-child{min-width:150px}
-  #evtCfg #pane table td:not(:first-child){min-width:114px;max-width:170px;white-space:normal;padding-left:8px;padding-right:8px}
-  #evtCfg #pane table td:not(:first-child) select,#evtCfg #pane table td:not(:first-child) input[type=text]{max-width:100%;min-width:0}
-  #evtCfg #pane table td:last-child{max-width:none}
-  /* 1366px 이하(노트북) — 사이드바·설정 메뉴·표 칸을 조금씩 줄여 표가 본문 안에 들어오게 */
-  @media (min-width:901px) and (max-width:1366px){
-    #mainWrap{padding-left:208px} #mainWrap > header{width:188px}
-    #page-admin.on{grid-template-columns:164px minmax(0,1fr);gap:14px}
-    #evtCfg #pane table td:first-child{min-width:130px}
-    #evtCfg #pane table td:not(:first-child){min-width:98px}
+  #evtCfg #pane table td:not(:first-child){min-width:104px;white-space:normal;padding-left:8px;padding-right:8px}
+  /* 음식물처리기처럼 코드가 둘인 제품의 「코드별 사은품 이름」 — 입력칸이 칸 폭에 밀려 30px 로 찌그러지던 것(코드 96px + 나머지) */
+  #evtCfg .each{min-width:280px}
+  #evtCfg #pane table td input[aria-label="사은품 이름"]{min-width:170px}
+  #evtCfg #pane table td:first-child select{min-width:150px}
+  @media (max-width:1366px){
+    #evtCfg #pane table td:not(:first-child){min-width:92px}
+    #page-admin.on{grid-template-columns:168px minmax(0,1fr);gap:14px}
   }
+  #evtCfg .each .r{grid-template-columns:72px minmax(170px,1fr)}
+  /* 목록 이름이 「…」로 잘려 구분이 안 되던 곳 — 줄바꿈으로 전부 보이게 (예약발송 제품 지정 · 설문 문항 목차) */
+  .rsvnm{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.35}
+  #evtCfg .titem .lbl{white-space:normal;overflow:visible;text-overflow:clip}
+
+  /* ══════════ 왼쪽 메뉴 접기 (2026-10-05) ══════════
+     원인: 펼친 사이드바(188~224px)만큼 업무 영역이 줄어, 1280~1440px 화면에서 부적합 표의 「출고 승인」 칸이 화면 밖으로 밀렸습니다.
+     · 1600px 미만은 자동으로 아이콘만(56px) — 메뉴 이름은 마우스를 올리면 보이고, 건수는 작은 배지로.
+     · 「« / »」 단추로 직접 펼치거나 접을 수 있고, 고른 값은 이 브라우저에만 기억합니다(html[data-side]).
+     · 메뉴 요소·id·동작은 그대로이고 모양만 바뀝니다. */
+  #sideToggle{position:absolute;top:14px;right:8px;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:none;
+    color:var(--in-muted);font-size:15px;line-height:28px;cursor:pointer}
+  #sideToggle:hover{background:var(--in-hover);color:var(--ink)}
+  html[data-side="narrow"] #mainWrap{padding-left:72px;padding-right:16px}
+  html[data-side="narrow"] #mainWrap > header{width:56px}
+  html[data-side="narrow"] #mainWrap > header h1{justify-content:center;padding:16px 0 6px}
+  html[data-side="narrow"] #mainWrap > header h1 .brandlogo{height:15px}
+  html[data-side="narrow"] #mainWrap > header h1 .svc,html[data-side="narrow"] #mainWrap > header h1 .sub{display:none}
+  html[data-side="narrow"] #sideToggle{position:static;display:block;margin:2px auto 4px}
+  html[data-side="narrow"] #mainWrap > header #tabs{padding:4px 6px 8px;overflow-x:hidden}
+  html[data-side="narrow"] #mainWrap > header #tabs .tab{justify-content:center;padding:0;font-size:0;gap:0}
+  html[data-side="narrow"] #mainWrap > header #tabs .tab::after{width:18px;height:18px;-webkit-mask-size:18px;mask-size:18px;opacity:.7}
+  html[data-side="narrow"] #mainWrap > header #tabs .tcs{position:absolute;top:2px;right:2px;margin:0}
+  html[data-side="narrow"] #mainWrap > header #tabs .tcs i{display:none}
+  html[data-side="narrow"] #mainWrap > header #tabs .tcs i:first-child{display:block;font-size:9.5px;font-weight:700;line-height:14px;height:14px;min-width:14px;padding:0 3px;
+    border-radius:7px;background:var(--in-hover);color:var(--ink);text-align:center}
+  html[data-side="narrow"] #mainWrap > header #tabs .tcs i.b:first-child{background:var(--badbg);color:var(--bad)}
+  html[data-side="narrow"] #mainWrap > header #tabs .tcs i.w:first-child{background:var(--warnbg);color:var(--warnfg)}
+  html[data-side="narrow"] #mainWrap > header .btns{padding:8px 4px 10px;align-items:center !important}
+  html[data-side="narrow"] #mainWrap > header #whoBox{flex-direction:column;align-items:center}
+  html[data-side="narrow"] #mainWrap > header #whoami{display:none}
+  html[data-side="narrow"] #mainWrap > header .btns button{font-size:0;width:32px;height:28px;padding:0;position:relative}
+  html[data-side="narrow"] #mainWrap > header .btns button::before{content:"";position:absolute;inset:0;margin:auto;width:16px;height:16px;background:currentColor;
+    -webkit-mask:var(--ic) center/16px no-repeat;mask:var(--ic) center/16px no-repeat}
+  html[data-side="narrow"] #mainWrap > header .btns #reload{align-self:center}
+  #btnChangePw{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='8' cy='15' r='4'/%3E%3Cpath d='M11 12l9-9M17 6l3 3'/%3E%3C/svg%3E")}
+  #btnLogout{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4H5v16h4M15 8l4 4-4 4M19 12H9'/%3E%3C/svg%3E")}
+  #reload{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M20 11a8 8 0 10-2.3 5.7M20 4v7h-7'/%3E%3C/svg%3E")}
+  @media(max-width:900px){ #sideToggle{display:none} }
 </style>
 </head>
 <body>
@@ -881,6 +921,7 @@
 <div class="wrap" id="mainWrap" style="visibility:hidden">
   <header>
     <h1><img class="brandlogo" src="data:image/png;base64,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" alt="아이닉"><span class="svc">포토리뷰 관리자</span><span class="sub" id="asof">불러오는 중…</span></h1>
+    <button type="button" id="sideToggle" aria-label="메뉴 접기/펼치기" title="메뉴 접기">«</button>
 
   <!-- 2026-10 디자인: 왼쪽 사이드바 = 이 header (로고·이름 → 메뉴 #tabs → 사용자·로그아웃). 요소·id 는 그대로, 자리만 옮겼습니다. -->
   <div class="tabs" id="tabs">
@@ -4037,8 +4078,18 @@ function updateTabCounts(){
   put("bad",b(badBase().length,"b"));
   put("reserve",b(reserveList("").length,"a"));
 }
+/* 🔴 2026-10-05 속도 — 탭 머리 건수(updateTabCounts)는 전체 접수를 여러 번 훑습니다(사은품·상품권 적합/확인필요, 부적합, 예약발송).
+      예전에는 탭을 누를 때마다 화면을 그리기 **전에** 계산해서 클릭이 그만큼 늦게 바뀌었습니다(접수가 많을수록 더 늦음).
+      이제 화면을 먼저 그리고, 다음 그림(약 1프레임) 뒤에 같은 계산을 합니다. 빠르게 여러 번 눌러도 한 번만 셉니다.
+      ⚠️ 계산 방법·결과는 그대로입니다. 숫자가 아주 잠깐 늦게 바뀔 뿐입니다. */
+let tabCountsQueued=false;
+function scheduleTabCounts(){
+  if(tabCountsQueued) return;
+  tabCountsQueued=true;
+  requestAnimationFrame(()=>setTimeout(()=>{ tabCountsQueued=false; try{updateTabCounts();}catch(_){} },0));
+}
 function renderActiveTab(){
-  try{updateTabCounts();}catch(_){}
+  scheduleTabCounts();
   if(curTab==="all")renderTableAll();
   else if(curTab==="report")renderReport();
   else if(curTab==="order")renderOrder();
@@ -4646,6 +4697,28 @@ async function gfApply(){
   }catch(err){ $("#gfState").textContent="실패: "+(err.message||err); $("#gfState").style.color="var(--bad,#c1121f)"; }
   finally{ $("#gfApply").disabled=false; }
 }
+/* 🔴 2026-10-05 화면 — 왼쪽 메뉴 접기/펼치기 (모양만 바꿈 · 업무 동작 없음)
+      1600px 미만은 자동으로 아이콘만, 「« / »」로 직접 고르면 이 브라우저에 기억합니다(localStorage 「admSide」).
+      접힌 메뉴는 이름이 안 보이므로 마우스를 올리면 뜨도록 title 을 채웁니다. */
+(function(){
+  const root=document.documentElement, KEY="admSide", mq=matchMedia("(max-width:1599px)");
+  let pref=null; try{ pref=localStorage.getItem(KEY); }catch(_){}
+  const btn=document.getElementById("sideToggle");
+  const apply=()=>{
+    const narrow = pref==="narrow" || (pref!=="wide" && mq.matches);
+    root.dataset.side = narrow ? "narrow" : "wide";
+    if(btn){ btn.textContent = narrow ? "»" : "«"; btn.title = narrow ? "메뉴 펼치기" : "메뉴 접기"; btn.setAttribute("aria-expanded", String(!narrow)); }
+  };
+  if(btn) btn.addEventListener("click",()=>{
+    pref = root.dataset.side==="narrow" ? "wide" : "narrow";
+    try{ localStorage.setItem(KEY,pref); }catch(_){}
+    apply();
+  });
+  if(mq.addEventListener) mq.addEventListener("change",apply);
+  document.querySelectorAll("#tabs .tab").forEach(t=>{ if(!t.title) t.title=t.textContent.replace(/\d+/g,"").trim(); });
+  ["btnChangePw","btnLogout","reload"].forEach(id=>{ const b=document.getElementById(id); if(b&&!b.title) b.title=b.textContent.replace("↻","").trim(); });
+  apply();
+})();
 function switchTab(name){curTab=name;$$("#tabs .tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===name));$$(".page").forEach(p=>p.classList.remove("on"));$("#page-"+name).classList.add("on");renderActiveTab();}
 function reset(key,fn){return()=>{pageState[key]=1;fn();};}
 
